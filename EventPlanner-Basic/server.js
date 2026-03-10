@@ -290,8 +290,12 @@ app.post('/api/contact', (req, res) => {
   res.json({ success: true, message: 'Message received' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🎉 Server running at http://localhost:${PORT}`);
-  console.log('📱 EverAfter Wedding Planner Application Started');
-});
+// Start server only when running locally.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
+
+// Export app for Vercel serverless runtime.
+export default app;

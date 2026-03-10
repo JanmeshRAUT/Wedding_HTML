@@ -52,6 +52,15 @@ npm start
 
 The application will be available at: **http://localhost:3000**
 
+## Deploy to Vercel (Only EventPlanner-Basic)
+
+1. In Vercel, import the GitHub repository.
+2. Set **Root Directory** to `EventPlanner-Basic`.
+3. Keep default install command (`npm install`).
+4. Deploy.
+
+This folder includes `vercel.json` so all routes are handled by `server.js`.
+
 ## Features Overview
 
 ### Home Page
