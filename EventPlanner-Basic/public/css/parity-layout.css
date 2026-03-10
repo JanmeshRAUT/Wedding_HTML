@@ -1,0 +1,249 @@
+.container {
+    width: min(1280px, 100% - 2rem);
+    margin-inline: auto;
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.98);
+    border-bottom: 1px solid var(--stone-200);
+    backdrop-filter: blur(6px);
+}
+
+.nav-wrap {
+    min-height: 4rem;
+    gap: var(--space-4);
+}
+
+.menu-toggle {
+    display: none;
+}
+
+.logo h1 {
+    color: var(--stone-800);
+    font-size: 1.25rem;
+    font-weight: 700;
+    background: none;
+    -webkit-text-fill-color: initial;
+}
+
+.heart {
+    color: var(--rose-500);
+}
+
+.nav-menu {
+    gap: var(--space-6);
+}
+
+.nav-menu a {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--stone-600);
+}
+
+.nav-menu a:hover {
+    color: var(--rose-500);
+}
+
+.login-btn {
+    background: var(--rose-500);
+    border-radius: var(--radius-pill);
+    padding: 0.5rem 1rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.login-btn:hover {
+    background: var(--rose-600);
+}
+
+.page-hero {
+    min-height: calc(100vh - 64px);
+}
+
+.hero-overlay {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.hero-content {
+    width: min(56rem, calc(100% - 2rem));
+}
+
+.hero-content h2 {
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: var(--space-6);
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: #e7e5e4;
+    max-width: 42rem;
+    margin: 0 auto var(--space-8);
+}
+
+.hero-actions {
+    gap: var(--space-4);
+}
+
+.page-standard {
+    padding: 3rem 0 5rem;
+}
+
+.section-header {
+    margin-bottom: var(--space-8);
+}
+
+.section-header h2 {
+    font-size: clamp(2rem, 3.8vw, 2.75rem);
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+.section-header p {
+    color: var(--stone-500);
+    font-size: 1rem;
+}
+
+.page-about,
+.page-contact,
+.page-auth {
+    padding: 5rem 0 6rem;
+}
+
+.about-shell,
+.contact-shell,
+.auth-layout {
+    width: min(1200px, 100% - 2rem);
+    margin-inline: auto;
+}
+
+.about-hero,
+.contact-hero {
+    margin-bottom: var(--space-12);
+}
+
+.about-hero h2,
+.contact-hero h2 {
+    font-size: 3.75rem;
+    line-height: 1.04;
+}
+
+.about-hero p,
+.contact-hero p {
+    font-size: 1.25rem;
+    color: var(--stone-600);
+    max-width: 48rem;
+}
+
+@media (min-width: 768px) {
+    .menu-toggle {
+        display: none;
+    }
+
+    .nav-menu {
+        display: flex !important;
+        position: static;
+        background: transparent;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .hero-content h2 {
+        font-size: 4.5rem;
+    }
+
+    .about-hero h2 {
+        font-size: 4.5rem;
+    }
+
+    .contact-hero h2 {
+        font-size: 3.75rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .about-hero h2 {
+        font-size: 6rem;
+    }
+
+    .contact-hero h2 {
+        font-size: 4.5rem;
+    }
+}
+
+@media (max-width: 1024px) {
+    .container,
+    .about-shell,
+    .contact-shell,
+    .auth-layout {
+        width: min(1200px, 100% - 1.5rem);
+    }
+
+    .nav-menu {
+        gap: var(--space-4);
+    }
+}
+
+@media (max-width: 767px) {
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        display: none;
+        flex-direction: column;
+        gap: var(--space-3);
+        align-items: flex-start;
+        background: #fff;
+        border-bottom: 1px solid var(--stone-200);
+        padding: 1rem;
+        margin: 0;
+    }
+
+    .nav-menu.open {
+        display: flex;
+    }
+
+    .page-standard {
+        padding: 2.25rem 0 4rem;
+    }
+
+    .about-hero,
+    .contact-hero {
+        margin-bottom: var(--space-8);
+    }
+}
+
+@media (max-width: 767px) {
+    .container,
+    .about-shell,
+    .contact-shell,
+    .auth-layout {
+        width: min(1200px, 100% - 1.25rem);
+    }
+
+    .hero-content h2 {
+        font-size: clamp(2.35rem, 9vw, 3rem);
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+        margin-bottom: var(--space-6);
+    }
+
+    .about-hero h2,
+    .contact-hero h2 {
+        font-size: clamp(2rem, 8.5vw, 2.8rem);
+    }
+
+    .about-hero p,
+    .contact-hero p {
+        font-size: 1rem;
+    }
+}

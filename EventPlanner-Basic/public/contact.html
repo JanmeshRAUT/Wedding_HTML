@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EverAfter - Contact</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/tokens.css">
+    <link rel="stylesheet" href="css/parity-layout.css">
+    <link rel="stylesheet" href="css/parity-components.css">
+    <link rel="stylesheet" href="css/parity-final.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container nav-wrap">
+            <a class="logo" href="index.html"><span class="heart">&#10084;</span><h1>EverAfter</h1></a>
+            <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li class="auth-nav"><a href="register.html">Register</a></li>
+                <li class="auth-nav"><a class="login-btn" href="login.html">Login</a></li>
+                <li class="user-nav" style="display:none;"><a href="vendors.html">Vendors</a></li>
+                <li class="user-nav" style="display:none;"><a href="favorites.html">Favorites</a></li>
+                <li class="user-nav" style="display:none;"><a href="bookings.html">My Bookings</a></li>
+                <li class="user-nav" style="display:none;"><a href="payments.html">Payments</a></li>
+                <li class="user-nav" style="display:none;"><a href="budget.html">Budget</a></li>
+                <li class="user-nav" style="display:none;"><a href="gallery.html">Gallery</a></li>
+                <li id="user-profile" class="user-profile" style="display:none;">
+                    <a href="profile.html"><span id="user-name">User</span></a>
+                    <a class="logout-btn" onclick="logout()">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page-contact">
+        <div class="blob blob-one"></div>
+        <div class="blob blob-two"></div>
+        <div class="container contact-shell">
+            <div class="contact-hero reveal-up">
+                <h2>Let's Talk About Your Wedding</h2>
+                <p>Have questions? We are here to help with every step of your planning journey.</p>
+            </div>
+            <div class="contact-cards reveal-up">
+                <article><h4>Email</h4><p>medtrust@gmail.com</p><span>Response within 2 hours</span></article>
+                <article><h4>Phone</h4><p>+91 77099 70972</p><span>Mon-Fri, 9am-6pm IST</span></article>
+                <article><h4>Office</h4><p>123 Wedding Lane, Pune</p><span>Meet by appointment</span></article>
+            </div>
+            <div class="form-box contact-form reveal-up">
+                <h3>Send Us a Message</h3>
+                <form id="contactForm" onsubmit="sendContact(event)">
+                    <input type="text" placeholder="Your Name" id="contactName" required>
+                    <input type="email" placeholder="Your Email" id="contactEmail" required>
+                    <input type="text" placeholder="Subject" id="contactSubject" required>
+                    <textarea placeholder="Your Message" rows="6" id="contactMessage" required></textarea>
+                    <button type="submit">Send Message</button>
+                </form>
+            </div>
+            <div class="faq-grid reveal-up">
+                <article><h4>How quickly do you respond?</h4><p>Within 2 hours during business time, or within 24 hours max.</p></article>
+                <article><h4>Can I meet your team?</h4><p>Yes, we offer scheduled in-person consultations by appointment.</p></article>
+                <article><h4>Do you support custom vendor needs?</h4><p>Tell us your style and budget and we will curate options.</p></article>
+                <article><h4>Do you provide ongoing support?</h4><p>Our team supports you from selection to final booking coordination.</p></article>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer"><p>&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
+    <script src="js/main.js"></script>
+</body>
+</html>
