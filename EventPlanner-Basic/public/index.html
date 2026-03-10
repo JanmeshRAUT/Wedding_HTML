@@ -1,60 +1,60 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EverAfter - Home</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/parity-layout.css">
-    <link rel="stylesheet" href="css/parity-components.css">
-    <link rel="stylesheet" href="css/parity-final.css">
+<html id="page-html" lang="en">
+<head id="page-head">
+    <meta id="meta-charset" charset="UTF-8">
+    <meta id="meta-viewport" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">EverAfter - Home</title>
+    <link id="font-stylesheet" rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
+    <link id="base-stylesheet" rel="stylesheet" href="css/style.css">
+    <link id="token-stylesheet" rel="stylesheet" href="css/tokens.css">
+    <link id="layout-stylesheet" rel="stylesheet" href="css/parity-layout.css">
+    <link id="component-stylesheet" rel="stylesheet" href="css/parity-components.css">
+    <link id="final-stylesheet" rel="stylesheet" href="css/parity-final.css">
 </head>
-<body>
-    <nav class="navbar">
-        <div class="container nav-wrap">
-            <a class="logo" href="index.html">
-                <span class="heart">&#10084;</span>
-                <h1>EverAfter</h1>
+<body id="page-body">
+    <nav id="main-navbar" class="navbar">
+        <div id="nav-container" class="container nav-wrap">
+            <a id="home-logo" class="logo" href="index.html">
+                <span id="logo-heart" class="heart">&#10084;</span>
+                <h1 id="logo-title">EverAfter</h1>
             </a>
             <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li class="auth-nav"><a href="register.html">Register</a></li>
-                <li class="auth-nav"><a class="login-btn" href="login.html">Login</a></li>
-                <li class="user-nav" style="display:none;"><a href="vendors.html">Vendors</a></li>
-                <li class="user-nav" style="display:none;"><a href="favorites.html">Favorites</a></li>
-                <li class="user-nav" style="display:none;"><a href="bookings.html">My Bookings</a></li>
-                <li class="user-nav" style="display:none;"><a href="payments.html">Payments</a></li>
-                <li class="user-nav" style="display:none;"><a href="budget.html">Budget</a></li>
-                <li class="user-nav" style="display:none;"><a href="gallery.html">Gallery</a></li>
+                <li id="nav-item-home"><a id="nav-link-home" href="index.html">Home</a></li>
+                <li id="nav-item-about"><a id="nav-link-about" href="about.html">About</a></li>
+                <li id="nav-item-contact"><a id="nav-link-contact" href="contact.html">Contact</a></li>
+                <li id="nav-item-register" class="auth-nav"><a id="nav-link-register" href="register.html">Register</a></li>
+                <li id="nav-item-login" class="auth-nav"><a id="nav-link-login" class="login-btn" href="login.html">Login</a></li>
+                <li id="nav-item-vendors" class="user-nav" style="display:none;"><a id="nav-link-vendors" href="vendors.html">Vendors</a></li>
+                <li id="nav-item-favorites" class="user-nav" style="display:none;"><a id="nav-link-favorites" href="favorites.html">Favorites</a></li>
+                <li id="nav-item-bookings" class="user-nav" style="display:none;"><a id="nav-link-bookings" href="bookings.html">My Bookings</a></li>
+                <li id="nav-item-payments" class="user-nav" style="display:none;"><a id="nav-link-payments" href="payments.html">Payments</a></li>
+                <li id="nav-item-budget" class="user-nav" style="display:none;"><a id="nav-link-budget" href="budget.html">Budget</a></li>
+                <li id="nav-item-gallery" class="user-nav" style="display:none;"><a id="nav-link-gallery" href="gallery.html">Gallery</a></li>
                 <li id="user-profile" class="user-profile" style="display:none;">
-                    <a href="profile.html"><span id="user-name">User</span></a>
-                    <a class="logout-btn" onclick="logout()">Logout</a>
+                    <a id="nav-link-profile" href="profile.html"><span id="user-name">User</span></a>
+                    <a id="logout-link" class="logout-btn" onclick="logout()">Logout</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <main class="page-hero page-home">
-        <div class="hero-overlay"></div>
-        <div class="hero-content reveal-up">
-            <h2>Plan Your Dream Wedding</h2>
-            <p>Everything you need to create your perfect day. Discover top vendors, manage bookings, and stay on budget.</p>
-            <div class="hero-actions">
-                <a class="cta-btn" href="register.html">Get Started</a>
-                <a class="cta-btn cta-secondary" href="vendors.html">Browse Vendors</a>
+    <main id="home-main" class="page-hero page-home">
+        <div id="hero-overlay" class="hero-overlay"></div>
+        <div id="hero-content" class="hero-content reveal-up">
+            <h2 id="hero-heading">Plan Your Dream Wedding</h2>
+            <p id="hero-description">Everything you need to create your perfect day. Discover top vendors, manage bookings, and stay on budget.</p>
+            <div id="hero-actions" class="hero-actions">
+                <a id="cta-get-started" class="cta-btn" href="register.html">Get Started</a>
+                <a id="cta-browse-vendors" class="cta-btn cta-secondary" href="vendors.html">Browse Vendors</a>
             </div>
         </div>
     </main>
 
-    <footer class="footer">
-        <p>&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p>
+    <footer id="site-footer" class="footer">
+        <p id="footer-text">&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script id="main-script" src="js/main.js"></script>
 </body>
 </html>

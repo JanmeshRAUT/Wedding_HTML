@@ -1,67 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EverAfter - Login</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/parity-layout.css">
-    <link rel="stylesheet" href="css/parity-components.css">
-    <link rel="stylesheet" href="css/parity-final.css">
+<html lang="en" id="login-html-1">
+<head id="login-head-1">
+    <meta charset="UTF-8" id="login-meta-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="login-meta-2">
+    <title id="login-title-1">EverAfter - Login</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" id="login-link-1">
+    <link rel="stylesheet" href="css/style.css" id="login-link-2">
+    <link rel="stylesheet" href="css/tokens.css" id="login-link-3">
+    <link rel="stylesheet" href="css/parity-layout.css" id="login-link-4">
+    <link rel="stylesheet" href="css/parity-components.css" id="login-link-5">
+    <link rel="stylesheet" href="css/parity-final.css" id="login-link-6">
 </head>
-<body>
-    <nav class="navbar">
-        <div class="container nav-wrap">
-            <a class="logo" href="index.html"><span class="heart">&#10084;</span><h1>EverAfter</h1></a>
+<body id="login-body-1">
+    <nav class="navbar" id="login-nav-1">
+        <div class="container nav-wrap" id="login-div-1">
+            <a class="logo" href="index.html" id="login-a-1"><span class="heart" id="login-span-1">&#10084;</span><h1 id="login-h1-1">EverAfter</h1></a>
             <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li class="auth-nav"><a href="register.html">Register</a></li>
-                <li class="auth-nav"><a class="login-btn" href="login.html">Login</a></li>
-                <li class="user-nav" style="display:none;"><a href="vendors.html">Vendors</a></li>
-                <li class="user-nav" style="display:none;"><a href="favorites.html">Favorites</a></li>
-                <li class="user-nav" style="display:none;"><a href="bookings.html">My Bookings</a></li>
-                <li class="user-nav" style="display:none;"><a href="payments.html">Payments</a></li>
-                <li class="user-nav" style="display:none;"><a href="budget.html">Budget</a></li>
-                <li class="user-nav" style="display:none;"><a href="gallery.html">Gallery</a></li>
+                <li id="login-li-1"><a href="index.html" id="login-a-2">Home</a></li>
+                <li id="login-li-2"><a href="about.html" id="login-a-3">About</a></li>
+                <li id="login-li-3"><a href="contact.html" id="login-a-4">Contact</a></li>
+                <li class="auth-nav" id="login-li-4"><a href="register.html" id="login-a-5">Register</a></li>
+                <li class="auth-nav" id="login-li-5"><a class="login-btn" href="login.html" id="login-a-6">Login</a></li>
+                <li class="user-nav" style="display:none;" id="login-li-6"><a href="vendors.html" id="login-a-7">Vendors</a></li>
+                <li class="user-nav" style="display:none;" id="login-li-7"><a href="favorites.html" id="login-a-8">Favorites</a></li>
+                <li class="user-nav" style="display:none;" id="login-li-8"><a href="bookings.html" id="login-a-9">My Bookings</a></li>
+                <li class="user-nav" style="display:none;" id="login-li-9"><a href="payments.html" id="login-a-10">Payments</a></li>
+                <li class="user-nav" style="display:none;" id="login-li-10"><a href="budget.html" id="login-a-11">Budget</a></li>
+                <li class="user-nav" style="display:none;" id="login-li-11"><a href="gallery.html" id="login-a-12">Gallery</a></li>
                 <li id="user-profile" class="user-profile" style="display:none;">
-                    <a href="profile.html"><span id="user-name">User</span></a>
-                    <a class="logout-btn" onclick="logout()">Logout</a>
+                    <a href="profile.html" id="login-a-13"><span id="user-name">User</span></a>
+                    <a class="logout-btn" onclick="logout()" id="login-a-14">Logout</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <main class="page-auth">
-        <div class="blob blob-one"></div>
-        <div class="blob blob-two"></div>
-        <div class="container auth-layout">
-            <div class="form-box reveal-up">
-                <h3>Welcome Back</h3>
+    <main class="page-auth" id="login-main-1">
+        <div class="blob blob-one" id="login-div-2"></div>
+        <div class="blob blob-two" id="login-div-3"></div>
+        <div class="container auth-layout" id="login-div-4">
+            <div class="form-box reveal-up" id="login-div-5">
+                <h3 id="login-h3-1">Welcome Back</h3>
                 <form id="loginForm" onsubmit="login(event)">
                     <input type="email" placeholder="Email Address" id="loginEmail" required>
                     <input type="password" placeholder="Password" id="loginPassword" required>
-                    <button type="submit">Sign In</button>
+                    <button type="submit" id="login-button-1">Sign In</button>
                 </form>
-                <p>Don't have an account? <a class="link" href="register.html">Register here</a></p>
+                <p id="login-p-1">Don't have an account? <a class="link" href="register.html" id="login-a-15">Register here</a></p>
             </div>
-            <div class="auth-copy reveal-up">
-                <h2>Plan Your Perfect Wedding</h2>
-                <p>Sign in to manage vendors, bookings, favorites, and budget.</p>
-                <ul>
-                    <li>Your curated vendor list</li>
-                    <li>Payment tracking and history</li>
-                    <li>Personal planning dashboard</li>
+            <div class="auth-copy reveal-up" id="login-div-6">
+                <h2 id="login-h2-1">Plan Your Perfect Wedding</h2>
+                <p id="login-p-2">Sign in to manage vendors, bookings, favorites, and budget.</p>
+                <ul id="login-ul-1">
+                    <li id="login-li-12">Your curated vendor list</li>
+                    <li id="login-li-13">Payment tracking and history</li>
+                    <li id="login-li-14">Personal planning dashboard</li>
                 </ul>
             </div>
         </div>
     </main>
 
-    <footer class="footer"><p>&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
-    <script src="js/main.js"></script>
+    <footer class="footer" id="login-footer-1"><p id="login-p-3">&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
+    <script src="js/main.js" id="login-script-1"></script>
 </body>
 </html>

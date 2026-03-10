@@ -1,64 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EverAfter - Vendors</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/parity-layout.css">
-    <link rel="stylesheet" href="css/parity-components.css">
-    <link rel="stylesheet" href="css/parity-final.css">
+<html lang="en" id="vendors-html-1">
+<head id="vendors-head-1">
+    <meta charset="UTF-8" id="vendors-meta-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="vendors-meta-2">
+    <title id="vendors-title-1">EverAfter - Vendors</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" id="vendors-link-1">
+    <link rel="stylesheet" href="css/style.css" id="vendors-link-2">
+    <link rel="stylesheet" href="css/tokens.css" id="vendors-link-3">
+    <link rel="stylesheet" href="css/parity-layout.css" id="vendors-link-4">
+    <link rel="stylesheet" href="css/parity-components.css" id="vendors-link-5">
+    <link rel="stylesheet" href="css/parity-final.css" id="vendors-link-6">
 </head>
-<body>
-    <nav class="navbar">
-        <div class="container nav-wrap">
-            <a class="logo" href="index.html"><span class="heart">&#10084;</span><h1>EverAfter</h1></a>
+<body id="vendors-body-1">
+    <nav class="navbar" id="vendors-nav-1">
+        <div class="container nav-wrap" id="vendors-div-1">
+            <a class="logo" href="index.html" id="vendors-a-1"><span class="heart" id="vendors-span-1">&#10084;</span><h1 id="vendors-h1-1">EverAfter</h1></a>
             <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li class="auth-nav"><a href="register.html">Register</a></li>
-                <li class="auth-nav"><a class="login-btn" href="login.html">Login</a></li>
-                <li class="user-nav" style="display:none;"><a href="vendors.html">Vendors</a></li>
-                <li class="user-nav" style="display:none;"><a href="favorites.html">Favorites</a></li>
-                <li class="user-nav" style="display:none;"><a href="bookings.html">My Bookings</a></li>
-                <li class="user-nav" style="display:none;"><a href="payments.html">Payments</a></li>
-                <li class="user-nav" style="display:none;"><a href="budget.html">Budget</a></li>
-                <li class="user-nav" style="display:none;"><a href="gallery.html">Gallery</a></li>
+                <li id="vendors-li-1"><a href="index.html" id="vendors-a-2">Home</a></li>
+                <li id="vendors-li-2"><a href="about.html" id="vendors-a-3">About</a></li>
+                <li id="vendors-li-3"><a href="contact.html" id="vendors-a-4">Contact</a></li>
+                <li class="auth-nav" id="vendors-li-4"><a href="register.html" id="vendors-a-5">Register</a></li>
+                <li class="auth-nav" id="vendors-li-5"><a class="login-btn" href="login.html" id="vendors-a-6">Login</a></li>
+                <li class="user-nav" style="display:none;" id="vendors-li-6"><a href="vendors.html" id="vendors-a-7">Vendors</a></li>
+                <li class="user-nav" style="display:none;" id="vendors-li-7"><a href="favorites.html" id="vendors-a-8">Favorites</a></li>
+                <li class="user-nav" style="display:none;" id="vendors-li-8"><a href="bookings.html" id="vendors-a-9">My Bookings</a></li>
+                <li class="user-nav" style="display:none;" id="vendors-li-9"><a href="payments.html" id="vendors-a-10">Payments</a></li>
+                <li class="user-nav" style="display:none;" id="vendors-li-10"><a href="budget.html" id="vendors-a-11">Budget</a></li>
+                <li class="user-nav" style="display:none;" id="vendors-li-11"><a href="gallery.html" id="vendors-a-12">Gallery</a></li>
                 <li id="user-profile" class="user-profile" style="display:none;">
-                    <a href="profile.html"><span id="user-name">User</span></a>
-                    <a class="logout-btn" onclick="logout()">Logout</a>
+                    <a href="profile.html" id="vendors-a-13"><span id="user-name">User</span></a>
+                    <a class="logout-btn" onclick="logout()" id="vendors-a-14">Logout</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <main class="page-standard vendors-page">
-        <div class="container">
-            <div class="section-header reveal-up">
-                <h2>Browse Vendors</h2>
-                <p>Search and filter by category to find your perfect match.</p>
+    <main class="page-standard vendors-page" id="vendors-main-1">
+        <div class="container" id="vendors-div-2">
+            <div class="section-header reveal-up" id="vendors-div-3">
+                <h2 id="vendors-h2-1">Browse Vendors</h2>
+                <p id="vendors-p-1">Search and filter by category to find your perfect match.</p>
             </div>
-            <div class="vendor-filter reveal-up">
+            <div class="vendor-filter reveal-up" id="vendors-div-4">
                 <input type="text" id="vendorSearch" placeholder="Search vendors..." onkeyup="filterVendors()">
                 <select id="categoryFilter" onchange="filterVendors()">
-                    <option value="">All Categories</option>
-                    <option value="Photographer">Photographer</option>
-                    <option value="Caterer">Caterer</option>
-                    <option value="Decorator">Decorator</option>
-                    <option value="Makeup Artist">Makeup Artist</option>
-                    <option value="Venue">Venue</option>
-                    <option value="DJ/Music">DJ/Music</option>
+                    <option value="" id="vendors-option-1">All Categories</option>
+                    <option value="Photographer" id="vendors-option-2">Photographer</option>
+                    <option value="Caterer" id="vendors-option-3">Caterer</option>
+                    <option value="Decorator" id="vendors-option-4">Decorator</option>
+                    <option value="Makeup Artist" id="vendors-option-5">Makeup Artist</option>
+                    <option value="Venue" id="vendors-option-6">Venue</option>
+                    <option value="DJ/Music" id="vendors-option-7">DJ/Music</option>
                 </select>
             </div>
             <div id="vendorsList" class="vendor-grid"></div>
         </div>
     </main>
 
-    <footer class="footer"><p>&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
-    <script src="js/main.js"></script>
+    <footer class="footer" id="vendors-footer-1"><p id="vendors-p-2">&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
+    <script src="js/main.js" id="vendors-script-1"></script>
 </body>
 </html>

@@ -1,49 +1,49 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EverAfter - Payments</title>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/tokens.css">
-    <link rel="stylesheet" href="css/parity-layout.css">
-    <link rel="stylesheet" href="css/parity-components.css">
-    <link rel="stylesheet" href="css/parity-final.css">
+<html lang="en" id="payments-html-1">
+<head id="payments-head-1">
+    <meta charset="UTF-8" id="payments-meta-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="payments-meta-2">
+    <title id="payments-title-1">EverAfter - Payments</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" id="payments-link-1">
+    <link rel="stylesheet" href="css/style.css" id="payments-link-2">
+    <link rel="stylesheet" href="css/tokens.css" id="payments-link-3">
+    <link rel="stylesheet" href="css/parity-layout.css" id="payments-link-4">
+    <link rel="stylesheet" href="css/parity-components.css" id="payments-link-5">
+    <link rel="stylesheet" href="css/parity-final.css" id="payments-link-6">
 </head>
-<body>
-    <nav class="navbar">
-        <div class="container nav-wrap">
-            <a class="logo" href="index.html"><span class="heart">&#10084;</span><h1>EverAfter</h1></a>
+<body id="payments-body-1">
+    <nav class="navbar" id="payments-nav-1">
+        <div class="container nav-wrap" id="payments-div-1">
+            <a class="logo" href="index.html" id="payments-a-1"><span class="heart" id="payments-span-1">&#10084;</span><h1 id="payments-h1-1">EverAfter</h1></a>
             <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
             <ul class="nav-menu" id="navMenu">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-                <li class="auth-nav"><a href="register.html">Register</a></li>
-                <li class="auth-nav"><a class="login-btn" href="login.html">Login</a></li>
-                <li class="user-nav" style="display:none;"><a href="vendors.html">Vendors</a></li>
-                <li class="user-nav" style="display:none;"><a href="favorites.html">Favorites</a></li>
-                <li class="user-nav" style="display:none;"><a href="bookings.html">My Bookings</a></li>
-                <li class="user-nav" style="display:none;"><a href="payments.html">Payments</a></li>
-                <li class="user-nav" style="display:none;"><a href="budget.html">Budget</a></li>
-                <li class="user-nav" style="display:none;"><a href="gallery.html">Gallery</a></li>
+                <li id="payments-li-1"><a href="index.html" id="payments-a-2">Home</a></li>
+                <li id="payments-li-2"><a href="about.html" id="payments-a-3">About</a></li>
+                <li id="payments-li-3"><a href="contact.html" id="payments-a-4">Contact</a></li>
+                <li class="auth-nav" id="payments-li-4"><a href="register.html" id="payments-a-5">Register</a></li>
+                <li class="auth-nav" id="payments-li-5"><a class="login-btn" href="login.html" id="payments-a-6">Login</a></li>
+                <li class="user-nav" style="display:none;" id="payments-li-6"><a href="vendors.html" id="payments-a-7">Vendors</a></li>
+                <li class="user-nav" style="display:none;" id="payments-li-7"><a href="favorites.html" id="payments-a-8">Favorites</a></li>
+                <li class="user-nav" style="display:none;" id="payments-li-8"><a href="bookings.html" id="payments-a-9">My Bookings</a></li>
+                <li class="user-nav" style="display:none;" id="payments-li-9"><a href="payments.html" id="payments-a-10">Payments</a></li>
+                <li class="user-nav" style="display:none;" id="payments-li-10"><a href="budget.html" id="payments-a-11">Budget</a></li>
+                <li class="user-nav" style="display:none;" id="payments-li-11"><a href="gallery.html" id="payments-a-12">Gallery</a></li>
                 <li id="user-profile" class="user-profile" style="display:none;">
-                    <a href="profile.html"><span id="user-name">User</span></a>
-                    <a class="logout-btn" onclick="logout()">Logout</a>
+                    <a href="profile.html" id="payments-a-13"><span id="user-name">User</span></a>
+                    <a class="logout-btn" onclick="logout()" id="payments-a-14">Logout</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <main class="page-standard payments-page">
-        <div class="container">
-            <div class="section-header reveal-up booking-header">
-                <div>
-                    <h2>Payment History</h2>
-                    <p>All your transactions in one place.</p>
+    <main class="page-standard payments-page" id="payments-main-1">
+        <div class="container" id="payments-div-2">
+            <div class="section-header reveal-up booking-header" id="payments-div-3">
+                <div id="payments-div-4">
+                    <h2 id="payments-h2-1">Payment History</h2>
+                    <p id="payments-p-1">All your transactions in one place.</p>
                 </div>
-                <a class="inline-link" href="bookings.html">View My Bookings</a>
+                <a class="inline-link" href="bookings.html" id="payments-a-15">View My Bookings</a>
             </div>
 
             <div id="paymentsSummary" class="stats-grid reveal-up"></div>
@@ -52,7 +52,7 @@
         </div>
     </main>
 
-    <footer class="footer"><p>&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
-    <script src="js/main.js"></script>
+    <footer class="footer" id="payments-footer-1"><p id="payments-p-2">&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
+    <script src="js/main.js" id="payments-script-1"></script>
 </body>
 </html>
