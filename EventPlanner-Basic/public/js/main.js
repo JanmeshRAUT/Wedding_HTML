@@ -6,6 +6,23 @@ let favorites = [];
 let payments = [];
 let gallery = [];
 let budget = { total: 0, spent: 0 };
+let generatedIdCounter = 1;
+
+function addMissingIdsToHtml(html, prefix = 'generated') {
+    const template = document.createElement('template');
+    template.innerHTML = String(html || '');
+    template.content.querySelectorAll('*').forEach((el) => {
+        if (!el.id) {
+            el.id = `${prefix}-${el.tagName.toLowerCase()}-${generatedIdCounter++}`;
+        }
+    });
+    return template.innerHTML;
+}
+
+function setInnerHTMLWithIds(element, html, prefix) {
+    if (!element) return;
+    element.innerHTML = addMissingIdsToHtml(html, prefix);
+}
 
 const routeMap = {
     home: 'index.html',
@@ -287,7 +304,7 @@ function displayVendors(vendorList, targetId = 'vendorsList') {
     const container = document.getElementById(targetId);
     if (!container) return;
 
-    container.innerHTML = vendorList.map(vendor => `
+    setInnerHTMLWithIds(container, vendorList.map(vendor => `
         <div class="vendor-card" onclick="openVendorDetails(${vendor.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openVendorDetails(${vendor.id})}">
             <div class="vendor-image">
                 <img src="${vendor.img}" alt="${vendor.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=900'">
@@ -315,7 +332,7 @@ function displayVendors(vendorList, targetId = 'vendorsList') {
                 </div>
             </div>
         </div>
-    `).join('');
+    `).join(''), 'vendors-list');
 }
 
 function openVendorDetails(vendorId) {
@@ -354,7 +371,7 @@ function displayFavorites() {
     if (!container) return;
 
     if (favoriteVendors.length === 0) {
-        container.innerHTML = '<p class="empty-message">No favorites yet. Save some vendors!</p>';
+        setInnerHTMLWithIds(container, '<p class="empty-message">No favorites yet. Save some vendors!</p>', 'favorites-empty');
         return;
     }
 
@@ -370,17 +387,17 @@ function displayVendorDetails() {
     const vendor = mockVendors.find(v => v.id === vendorId);
 
     if (!vendor) {
-        mount.innerHTML = `
+        setInnerHTMLWithIds(mount, `
             <div class="form-container">
                 <h3>Vendor Not Found</h3>
                 <p class="empty-message">The selected vendor could not be loaded.</p>
                 <a class="inline-link" href="vendors.html">Back to Vendors</a>
             </div>
-        `;
+        `, 'vendor-details-empty');
         return;
     }
 
-    mount.innerHTML = `
+    setInnerHTMLWithIds(mount, `
         <div class="form-container vendor-detail-shell reveal-up">
             <a class="inline-link" href="vendors.html">← Back to Vendors</a>
             <div class="vendor-detail-grid">
@@ -412,7 +429,7 @@ function displayVendorDetails() {
                     : '<p>No reviews yet.</p>'}
             </div>
         </div>
-    `;
+    `, 'vendor-details');
 }
 
 // ===== BOOKINGS =====
@@ -499,20 +516,20 @@ function displayBookings() {
     const pending = bookings.filter(b => b.payment_status !== 'paid').length;
 
     if (summaryContainer) {
-        summaryContainer.innerHTML = `
+        setInnerHTMLWithIds(summaryContainer, `
             <article class="summary-card"><h4>Total Bookings</h4><p>${bookings.length}</p></article>
             <article class="summary-card"><h4>Total Value</h4><p>₹${total.toLocaleString()}</p></article>
             <article class="summary-card"><h4>Paid</h4><p>${paid}</p></article>
             <article class="summary-card"><h4>Pending</h4><p>${pending}</p></article>
-        `;
+        `, 'bookings-summary');
     }
 
     if (bookings.length === 0) {
-        container.innerHTML = '<p class="empty-message">No bookings yet. Start planning your big day!</p>';
+        setInnerHTMLWithIds(container, '<p class="empty-message">No bookings yet. Start planning your big day!</p>', 'bookings-empty');
         return;
     }
 
-    container.innerHTML = bookings.map((booking) => `
+    setInnerHTMLWithIds(container, bookings.map((booking) => `
         <div class="list-item booking-card">
             <div class="booking-left">
                 <div class="booking-id">ID #${booking.booking_id}</div>
@@ -534,7 +551,7 @@ function displayBookings() {
                 </div>
             </div>
         </div>
-    `).join('');
+    `).join(''), 'bookings-list');
 }
 
 function startPayment(bookingId) {
@@ -595,17 +612,17 @@ function displayPaymentGateway() {
     const booking = bookings.find(b => b.booking_id === bookingId);
 
     if (!booking) {
-        mount.innerHTML = `
+        setInnerHTMLWithIds(mount, `
             <div class="form-container">
                 <h3>Payment Gateway Mock</h3>
                 <p class="empty-message">No pending booking selected for payment.</p>
                 <a class="inline-link" href="bookings.html">Back to My Bookings</a>
             </div>
-        `;
+        `, 'gateway-empty');
         return;
     }
 
-    mount.innerHTML = `
+    setInnerHTMLWithIds(mount, `
         <div class="form-container gateway-shell reveal-up">
             <div class="gateway-header">
                 <h2>Secure Checkout (Mock)</h2>
@@ -628,7 +645,7 @@ function displayPaymentGateway() {
                 <a class="inline-link" href="bookings.html">Cancel</a>
             </form>
         </div>
-    `;
+    `, 'gateway');
 }
 
 function processGatewayPayment(event) {
@@ -674,10 +691,10 @@ function populatePaymentBookingOptions() {
     if (!bookingSelect) return;
 
     const unpaidBookings = bookings.filter(b => b.payment_status !== 'paid');
-    bookingSelect.innerHTML = `
+    setInnerHTMLWithIds(bookingSelect, `
         <option value="">Select Booking (optional)</option>
         ${unpaidBookings.map(b => `<option value="${b.booking_id}">${b.vendor_name} - ₹${b.budget.toLocaleString()} (${b.booking_date})</option>`).join('')}
-    `;
+    `, 'payment-booking');
 
     const prefill = localStorage.getItem('prefill_payment_booking_id');
     if (prefill) {
@@ -759,19 +776,19 @@ function displayPayments() {
     const successCount = payments.filter(p => p.status === 'success').length;
 
     if (summaryContainer) {
-        summaryContainer.innerHTML = `
+        setInnerHTMLWithIds(summaryContainer, `
             <article class="summary-card"><h4>Total Paid</h4><p>₹${total.toLocaleString()}</p></article>
             <article class="summary-card"><h4>Transactions</h4><p>${payments.length}</p></article>
             <article class="summary-card"><h4>Successful</h4><p>${payments.length ? Math.round((successCount / payments.length) * 100) : 0}%</p></article>
-        `;
+        `, 'payments-summary');
     }
 
     if (payments.length === 0) {
-        container.innerHTML = '<p class="empty-message">No payments recorded yet. Your payment history will appear here after your first vendor payment.</p>';
+        setInnerHTMLWithIds(container, '<p class="empty-message">No payments recorded yet. Your payment history will appear here after your first vendor payment.</p>', 'payments-empty');
         return;
     }
 
-    container.innerHTML = payments.map((payment) => `
+    setInnerHTMLWithIds(container, payments.map((payment) => `
         <div class="list-item payment-card">
             <div class="payment-left">
                 <div class="payment-icon">${payment.method.includes('Card') ? '💳' : payment.method === 'UPI' ? '📱' : '🏦'}</div>
@@ -791,7 +808,7 @@ function displayPayments() {
                 <button class="delete-btn" onclick="deletePayment(${payment.payment_id})">Delete</button>
             </div>
         </div>
-    `).join('');
+    `).join(''), 'payments-list');
 }
 
 function deletePayment(paymentId) {
@@ -838,11 +855,11 @@ function displayGallery() {
     gallery = saved ? JSON.parse(saved) : [];
 
     if (gallery.length === 0) {
-        container.innerHTML = '<p class="empty-message">No gallery items yet.</p>';
+        setInnerHTMLWithIds(container, '<p class="empty-message">No gallery items yet.</p>', 'gallery-empty');
         return;
     }
 
-    container.innerHTML = gallery.map((item, index) => `
+    setInnerHTMLWithIds(container, gallery.map((item, index) => `
         <div class="gallery-item">
             <img src="${item.url}" alt="${item.title}" class="gallery-image" onerror="this.src='https://via.placeholder.com/250x200'">
             <div class="gallery-content">
@@ -851,7 +868,7 @@ function displayGallery() {
                 <button class="delete-btn" onclick="deleteGalleryItem(${index})">Delete</button>
             </div>
         </div>
-    `).join('');
+    `).join(''), 'gallery-list');
 }
 
 function deleteGalleryItem(index) {
@@ -940,7 +957,7 @@ function displayBudget() {
     const remaining = budget.total - spent;
     const percentage = budget.total > 0 ? (spent / budget.total) * 100 : 0;
 
-    container.innerHTML = `
+    setInnerHTMLWithIds(container, `
         <div class="budget-container budget-shell">
             <div class="budget-form budget-form-main">
                 <h3>Set Budget Goal</h3>
@@ -1003,11 +1020,12 @@ function displayBudget() {
                 </div>
             </div>
         </div>
-    `;
+    `, 'budget');
 }
 
 function showMessage(type, message) {
     const messageDiv = document.createElement('div');
+    messageDiv.id = `message-${type}-${generatedIdCounter++}`;
     messageDiv.className = `${type}-message`;
     messageDiv.textContent = message;
 
