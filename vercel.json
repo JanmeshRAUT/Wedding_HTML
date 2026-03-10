@@ -1,0 +1,20 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "EventPlanner-Basic/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "EventPlanner-Basic/public/**"
+        ]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "EventPlanner-Basic/server.js"
+    }
+  ]
+}
