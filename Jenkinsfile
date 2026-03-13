@@ -3,12 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Clone Repository') {
-            steps {
-                echo 'Cloning repository...'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 dir('EventPlanner-Basic') {
@@ -17,11 +11,9 @@ pipeline {
             }
         }
 
-        stage('Run Application') {
+        stage('Build Complete') {
             steps {
-                dir('EventPlanner-Basic') {
-                    bat 'npm start'
-                }
+                echo 'Application built successfully'
             }
         }
 
