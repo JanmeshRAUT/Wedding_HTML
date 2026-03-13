@@ -6,23 +6,6 @@ let favorites = [];
 let payments = [];
 let gallery = [];
 let budget = { total: 0, spent: 0 };
-let generatedIdCounter = 1;
-
-function addMissingIdsToHtml(html, prefix = 'generated') {
-    const template = document.createElement('template');
-    template.innerHTML = String(html || '');
-    template.content.querySelectorAll('*').forEach((el) => {
-        if (!el.id) {
-            el.id = `${prefix}-${el.tagName.toLowerCase()}-${generatedIdCounter++}`;
-        }
-    });
-    return template.innerHTML;
-}
-
-function setInnerHTMLWithIds(element, html, prefix) {
-    if (!element) return;
-    element.innerHTML = addMissingIdsToHtml(html, prefix);
-}
 
 const routeMap = {
     home: 'index.html',
@@ -304,35 +287,35 @@ function displayVendors(vendorList, targetId = 'vendorsList') {
     const container = document.getElementById(targetId);
     if (!container) return;
 
-    setInnerHTMLWithIds(container, vendorList.map(vendor => `
-        <div class="vendor-card" onclick="openVendorDetails(${vendor.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openVendorDetails(${vendor.id})}">
-            <div class="vendor-image">
-                <img src="${vendor.img}" alt="${vendor.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=900'">
-                <div class="vendor-overlay-left">
-                    <div class="vendor-category">${vendor.category}</div>
+    container.innerHTML = vendorList.map(vendor => `
+        <div id="vendor-card-${vendor.id}" class="vendor-card" onclick="openVendorDetails(${vendor.id})" role="button" tabindex="0" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openVendorDetails(${vendor.id})}">
+            <div id="vendor-image-${vendor.id}" class="vendor-image">
+                <img id="vendor-img-${vendor.id}" src="${vendor.img}" alt="${vendor.name}" loading="lazy" referrerpolicy="no-referrer" onerror="this.src='https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=900'">
+                <div id="vendor-overlay-left-${vendor.id}" class="vendor-overlay-left">
+                    <div id="vendor-category-badge-${vendor.id}" class="vendor-category">${vendor.category}</div>
                 </div>
-                <div class="vendor-overlay-right">
-                    <div class="vendor-rating">⭐ ${vendor.rating}</div>
+                <div id="vendor-overlay-right-${vendor.id}" class="vendor-overlay-right">
+                    <div id="vendor-rating-badge-${vendor.id}" class="vendor-rating">⭐ ${vendor.rating}</div>
                 </div>
             </div>
-            <div class="vendor-content">
-                <div class="vendor-header">
+            <div id="vendor-content-${vendor.id}" class="vendor-content">
+                <div id="vendor-header-${vendor.id}" class="vendor-header">
                     <div>
-                        <h3 class="vendor-title">${vendor.name}</h3>
+                        <h3 id="vendor-title-${vendor.id}" class="vendor-title">${vendor.name}</h3>
                     </div>
                 </div>
-                <p class="vendor-location">📍 ${vendor.location}</p>
-                <p>${vendor.desc}</p>
-                <div class="vendor-price">₹${vendor.price.toLocaleString()} <span>/ starting</span></div>
-                <div class="vendor-actions">
-                    <button class="favorite-btn ${favorites.includes(vendor.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${vendor.id})">
+                <p id="vendor-location-${vendor.id}" class="vendor-location">📍 ${vendor.location}</p>
+                <p id="vendor-desc-${vendor.id}">${vendor.desc}</p>
+                <div id="vendor-price-${vendor.id}" class="vendor-price">₹${vendor.price.toLocaleString()} <span>/ starting</span></div>
+                <div id="vendor-actions-${vendor.id}" class="vendor-actions">
+                    <button id="btn-favorite-vendor-${vendor.id}" class="favorite-btn ${favorites.includes(vendor.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite(${vendor.id})">
                         ${favorites.includes(vendor.id) ? '❤️ Saved' : '🤍 Save'}
                     </button>
-                    <button onclick="event.stopPropagation();openVendorDetails(${vendor.id})">View Details</button>
+                    <button id="btn-view-vendor-${vendor.id}" onclick="event.stopPropagation();openVendorDetails(${vendor.id})">View Details</button>
                 </div>
             </div>
         </div>
-    `).join(''), 'vendors-list');
+    `).join('');
 }
 
 function openVendorDetails(vendorId) {
@@ -371,7 +354,7 @@ function displayFavorites() {
     if (!container) return;
 
     if (favoriteVendors.length === 0) {
-        setInnerHTMLWithIds(container, '<p class="empty-message">No favorites yet. Save some vendors!</p>', 'favorites-empty');
+        container.innerHTML = '<p id="favorites-empty-msg" class="empty-message">No favorites yet. Save some vendors!</p>';
         return;
     }
 
@@ -387,49 +370,49 @@ function displayVendorDetails() {
     const vendor = mockVendors.find(v => v.id === vendorId);
 
     if (!vendor) {
-        setInnerHTMLWithIds(mount, `
-            <div class="form-container">
-                <h3>Vendor Not Found</h3>
-                <p class="empty-message">The selected vendor could not be loaded.</p>
-                <a class="inline-link" href="vendors.html">Back to Vendors</a>
+        mount.innerHTML = `
+            <div id="vendor-details-not-found" class="form-container">
+                <h3 id="vendor-details-not-found-title">Vendor Not Found</h3>
+                <p id="vendor-details-not-found-msg" class="empty-message">The selected vendor could not be loaded.</p>
+                <a id="vendor-details-back-link" class="inline-link" href="vendors.html">Back to Vendors</a>
             </div>
-        `, 'vendor-details-empty');
+        `;
         return;
     }
 
-    setInnerHTMLWithIds(mount, `
-        <div class="form-container vendor-detail-shell reveal-up">
-            <a class="inline-link" href="vendors.html">← Back to Vendors</a>
-            <div class="vendor-detail-grid">
-                <img class="vendor-detail-image" src="${vendor.img}" alt="${vendor.name}" referrerpolicy="no-referrer">
-                <div class="vendor-detail-content">
-                    <div class="vendor-detail-top">
-                        <div class="vendor-category">${vendor.category}</div>
-                        <div class="vendor-rating">⭐ ${vendor.rating}</div>
+    mount.innerHTML = `
+        <div id="vendor-details-shell" class="form-container vendor-detail-shell reveal-up">
+            <a id="vendor-details-back" class="inline-link" href="vendors.html">← Back to Vendors</a>
+            <div id="vendor-details-grid" class="vendor-detail-grid">
+                <img id="vendor-details-img" class="vendor-detail-image" src="${vendor.img}" alt="${vendor.name}" referrerpolicy="no-referrer">
+                <div id="vendor-details-content" class="vendor-detail-content">
+                    <div id="vendor-details-top" class="vendor-detail-top">
+                        <div id="vendor-details-category" class="vendor-category">${vendor.category}</div>
+                        <div id="vendor-details-rating" class="vendor-rating">⭐ ${vendor.rating}</div>
                     </div>
-                    <h2 class="vendor-detail-title">${vendor.name}</h2>
-                    <p class="vendor-location">📍 ${vendor.location}</p>
-                    <p class="vendor-detail-desc">${vendor.desc}</p>
-                    <div class="vendor-detail-meta">
-                        <p><strong>Starting Price:</strong> ₹${vendor.price.toLocaleString()}</p>
-                        ${vendor.email ? `<p><strong>Email:</strong> <a href="mailto:${vendor.email}">${vendor.email}</a></p>` : ''}
+                    <h2 id="vendor-details-title" class="vendor-detail-title">${vendor.name}</h2>
+                    <p id="vendor-details-location" class="vendor-location">📍 ${vendor.location}</p>
+                    <p id="vendor-details-desc" class="vendor-detail-desc">${vendor.desc}</p>
+                    <div id="vendor-details-meta" class="vendor-detail-meta">
+                        <p id="vendor-details-price"><strong>Starting Price:</strong> ₹${vendor.price.toLocaleString()}</p>
+                        ${vendor.email ? `<p id="vendor-details-email"><strong>Email:</strong> <a id="vendor-details-email-link" href="mailto:${vendor.email}">${vendor.email}</a></p>` : ''}
                     </div>
-                    <div class="vendor-actions vendor-detail-actions">
-                        <button onclick="toggleFavorite(${vendor.id})" class="favorite-btn ${favorites.includes(vendor.id) ? 'active' : ''}">
+                    <div id="vendor-details-actions" class="vendor-actions vendor-detail-actions">
+                        <button id="btn-detail-favorite-${vendor.id}" onclick="toggleFavorite(${vendor.id})" class="favorite-btn ${favorites.includes(vendor.id) ? 'active' : ''}">
                             ${favorites.includes(vendor.id) ? '❤️ Saved' : '🤍 Save'}
                         </button>
-                        <button onclick="bookVendor(${vendor.id}, '${vendor.name.replace(/'/g, "\\'")}')">Book Now</button>
+                        <button id="btn-detail-book-${vendor.id}" onclick="bookVendor(${vendor.id}, '${vendor.name.replace(/'/g, "\\'")}')">Book Now</button>
                     </div>
                 </div>
             </div>
-            <div class="vendor-reviews-block">
-                <h3>Reviews</h3>
+            <div id="vendor-reviews-block" class="vendor-reviews-block">
+                <h3 id="vendor-reviews-title">Reviews</h3>
                 ${vendor.reviews && vendor.reviews.length > 0
-                    ? vendor.reviews.map(r => `<article class="vendor-review-item"><p class="vendor-review-head">⭐ ${r.rating}/5 by <strong>${r.user}</strong></p><p>"${r.comment}"</p></article>`).join('')
-                    : '<p>No reviews yet.</p>'}
+                    ? vendor.reviews.map((r, i) => `<article id="vendor-review-${vendor.id}-${i}" class="vendor-review-item"><p id="vendor-review-head-${vendor.id}-${i}" class="vendor-review-head">⭐ ${r.rating}/5 by <strong>${r.user}</strong></p><p>"${r.comment}"</p></article>`).join('')
+                    : '<p id="vendor-reviews-empty">No reviews yet.</p>'}
             </div>
         </div>
-    `, 'vendor-details');
+    `;
 }
 
 // ===== BOOKINGS =====
@@ -516,42 +499,42 @@ function displayBookings() {
     const pending = bookings.filter(b => b.payment_status !== 'paid').length;
 
     if (summaryContainer) {
-        setInnerHTMLWithIds(summaryContainer, `
-            <article class="summary-card"><h4>Total Bookings</h4><p>${bookings.length}</p></article>
-            <article class="summary-card"><h4>Total Value</h4><p>₹${total.toLocaleString()}</p></article>
-            <article class="summary-card"><h4>Paid</h4><p>${paid}</p></article>
-            <article class="summary-card"><h4>Pending</h4><p>${pending}</p></article>
-        `, 'bookings-summary');
+        summaryContainer.innerHTML = `
+            <article id="booking-summary-count" class="summary-card"><h4>Total Bookings</h4><p id="booking-summary-count-value">${bookings.length}</p></article>
+            <article id="booking-summary-value" class="summary-card"><h4>Total Value</h4><p id="booking-summary-value-amount">₹${total.toLocaleString()}</p></article>
+            <article id="booking-summary-paid" class="summary-card"><h4>Paid</h4><p id="booking-summary-paid-count">${paid}</p></article>
+            <article id="booking-summary-pending" class="summary-card"><h4>Pending</h4><p id="booking-summary-pending-count">${pending}</p></article>
+        `;
     }
 
     if (bookings.length === 0) {
-        setInnerHTMLWithIds(container, '<p class="empty-message">No bookings yet. Start planning your big day!</p>', 'bookings-empty');
+        container.innerHTML = '<p id="bookings-empty-msg" class="empty-message">No bookings yet. Start planning your big day!</p>';
         return;
     }
 
-    setInnerHTMLWithIds(container, bookings.map((booking) => `
-        <div class="list-item booking-card">
-            <div class="booking-left">
-                <div class="booking-id">ID #${booking.booking_id}</div>
-                <div>
-                    <h4>${booking.vendor_name}</h4>
-                    <p class="booking-service">${booking.service_type}</p>
-                    <p class="booking-date">${new Date(booking.booking_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+    container.innerHTML = bookings.map((booking) => `
+        <div id="booking-card-${booking.booking_id}" class="list-item booking-card">
+            <div id="booking-left-${booking.booking_id}" class="booking-left">
+                <div id="booking-id-label-${booking.booking_id}" class="booking-id">ID #${booking.booking_id}</div>
+                <div id="booking-info-${booking.booking_id}">
+                    <h4 id="booking-vendor-${booking.booking_id}">${booking.vendor_name}</h4>
+                    <p id="booking-service-${booking.booking_id}" class="booking-service">${booking.service_type}</p>
+                    <p id="booking-date-${booking.booking_id}" class="booking-date">${new Date(booking.booking_date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                 </div>
             </div>
-            <div class="booking-right">
-                <div class="booking-amount">₹${booking.budget.toLocaleString()}</div>
-                <div class="booking-status ${booking.payment_status === 'paid' ? 'paid' : 'pending'}">
-                    <span class="status-dot"></span>
+            <div id="booking-right-${booking.booking_id}" class="booking-right">
+                <div id="booking-amount-${booking.booking_id}" class="booking-amount">₹${booking.budget.toLocaleString()}</div>
+                <div id="booking-status-${booking.booking_id}" class="booking-status ${booking.payment_status === 'paid' ? 'paid' : 'pending'}">
+                    <span id="booking-status-dot-${booking.booking_id}" class="status-dot"></span>
                     ${booking.payment_status === 'paid' ? 'Paid' : 'Payment Pending'}
                 </div>
-                <div class="booking-actions">
-                    ${booking.payment_status !== 'paid' ? `<button onclick="startPayment(${booking.booking_id})">Pay Now</button>` : ''}
-                    <button class="delete-btn" onclick="deleteBooking(${booking.booking_id})">Cancel</button>
+                <div id="booking-actions-${booking.booking_id}" class="booking-actions">
+                    ${booking.payment_status !== 'paid' ? `<button id="btn-pay-booking-${booking.booking_id}" onclick="startPayment(${booking.booking_id})">Pay Now</button>` : ''}
+                    <button id="btn-cancel-booking-${booking.booking_id}" class="delete-btn" onclick="deleteBooking(${booking.booking_id})">Cancel</button>
                 </div>
             </div>
         </div>
-    `).join(''), 'bookings-list');
+    `).join('');
 }
 
 function startPayment(bookingId) {
@@ -612,26 +595,26 @@ function displayPaymentGateway() {
     const booking = bookings.find(b => b.booking_id === bookingId);
 
     if (!booking) {
-        setInnerHTMLWithIds(mount, `
-            <div class="form-container">
-                <h3>Payment Gateway Mock</h3>
-                <p class="empty-message">No pending booking selected for payment.</p>
-                <a class="inline-link" href="bookings.html">Back to My Bookings</a>
+        mount.innerHTML = `
+            <div id="gateway-empty" class="form-container">
+                <h3 id="gateway-empty-title">Payment Gateway Mock</h3>
+                <p id="gateway-empty-msg" class="empty-message">No pending booking selected for payment.</p>
+                <a id="gateway-back-link" class="inline-link" href="bookings.html">Back to My Bookings</a>
             </div>
-        `, 'gateway-empty');
+        `;
         return;
     }
 
-    setInnerHTMLWithIds(mount, `
-        <div class="form-container gateway-shell reveal-up">
-            <div class="gateway-header">
-                <h2>Secure Checkout (Mock)</h2>
-                <p>Simulated payment gateway for ${booking.vendor_name}</p>
+    mount.innerHTML = `
+        <div id="gateway-shell" class="form-container gateway-shell reveal-up">
+            <div id="gateway-header" class="gateway-header">
+                <h2 id="gateway-title">Secure Checkout (Mock)</h2>
+                <p id="gateway-subtitle">Simulated payment gateway for ${booking.vendor_name}</p>
             </div>
-            <div class="gateway-summary">
-                <p><strong>Booking ID:</strong> #${booking.booking_id}</p>
-                <p><strong>Vendor:</strong> ${booking.vendor_name}</p>
-                <p><strong>Amount:</strong> ₹${booking.budget.toLocaleString()}</p>
+            <div id="gateway-summary" class="gateway-summary">
+                <p id="gateway-booking-id"><strong>Booking ID:</strong> #${booking.booking_id}</p>
+                <p id="gateway-vendor-name"><strong>Vendor:</strong> ${booking.vendor_name}</p>
+                <p id="gateway-amount"><strong>Amount:</strong> ₹${booking.budget.toLocaleString()}</p>
             </div>
             <form id="gatewayForm" onsubmit="processGatewayPayment(event)">
                 <select id="gatewayMethod" required>
@@ -641,11 +624,11 @@ function displayPaymentGateway() {
                     <option value="Net Banking">Net Banking</option>
                 </select>
                 <input id="gatewayAccount" type="text" placeholder="Card/UPI/Account (mock)" required>
-                <button type="submit">Pay ₹${booking.budget.toLocaleString()}</button>
-                <a class="inline-link" href="bookings.html">Cancel</a>
+                <button id="btn-gateway-pay" type="submit">Pay ₹${booking.budget.toLocaleString()}</button>
+                <a id="btn-gateway-cancel" class="inline-link" href="bookings.html">Cancel</a>
             </form>
         </div>
-    `, 'gateway');
+    `;
 }
 
 function processGatewayPayment(event) {
@@ -691,10 +674,10 @@ function populatePaymentBookingOptions() {
     if (!bookingSelect) return;
 
     const unpaidBookings = bookings.filter(b => b.payment_status !== 'paid');
-    setInnerHTMLWithIds(bookingSelect, `
+    bookingSelect.innerHTML = `
         <option value="">Select Booking (optional)</option>
-        ${unpaidBookings.map(b => `<option value="${b.booking_id}">${b.vendor_name} - ₹${b.budget.toLocaleString()} (${b.booking_date})</option>`).join('')}
-    `, 'payment-booking');
+        ${unpaidBookings.map(b => `<option id="payment-booking-option-${b.booking_id}" value="${b.booking_id}">${b.vendor_name} - ₹${b.budget.toLocaleString()} (${b.booking_date})</option>`).join('')}
+    `;
 
     const prefill = localStorage.getItem('prefill_payment_booking_id');
     if (prefill) {
@@ -776,39 +759,39 @@ function displayPayments() {
     const successCount = payments.filter(p => p.status === 'success').length;
 
     if (summaryContainer) {
-        setInnerHTMLWithIds(summaryContainer, `
-            <article class="summary-card"><h4>Total Paid</h4><p>₹${total.toLocaleString()}</p></article>
-            <article class="summary-card"><h4>Transactions</h4><p>${payments.length}</p></article>
-            <article class="summary-card"><h4>Successful</h4><p>${payments.length ? Math.round((successCount / payments.length) * 100) : 0}%</p></article>
-        `, 'payments-summary');
+        summaryContainer.innerHTML = `
+            <article id="payment-summary-total" class="summary-card"><h4>Total Paid</h4><p id="payment-summary-total-amount">₹${total.toLocaleString()}</p></article>
+            <article id="payment-summary-count" class="summary-card"><h4>Transactions</h4><p id="payment-summary-count-value">${payments.length}</p></article>
+            <article id="payment-summary-success" class="summary-card"><h4>Successful</h4><p id="payment-summary-success-pct">${payments.length ? Math.round((successCount / payments.length) * 100) : 0}%</p></article>
+        `;
     }
 
     if (payments.length === 0) {
-        setInnerHTMLWithIds(container, '<p class="empty-message">No payments recorded yet. Your payment history will appear here after your first vendor payment.</p>', 'payments-empty');
+        container.innerHTML = '<p id="payments-empty-msg" class="empty-message">No payments recorded yet. Your payment history will appear here after your first vendor payment.</p>';
         return;
     }
 
-    setInnerHTMLWithIds(container, payments.map((payment) => `
-        <div class="list-item payment-card">
-            <div class="payment-left">
-                <div class="payment-icon">${payment.method.includes('Card') ? '💳' : payment.method === 'UPI' ? '📱' : '🏦'}</div>
-                <div>
-                    <h4>${payment.vendor_name}</h4>
-                    <p class="payment-method">${payment.method}</p>
-                    <p class="txn">TXN: ${payment.transaction_id}</p>
+    container.innerHTML = payments.map((payment) => `
+        <div id="payment-card-${payment.payment_id}" class="list-item payment-card">
+            <div id="payment-left-${payment.payment_id}" class="payment-left">
+                <div id="payment-icon-${payment.payment_id}" class="payment-icon">${payment.method.includes('Card') ? '💳' : payment.method === 'UPI' ? '📱' : '🏦'}</div>
+                <div id="payment-info-${payment.payment_id}">
+                    <h4 id="payment-vendor-${payment.payment_id}">${payment.vendor_name}</h4>
+                    <p id="payment-method-${payment.payment_id}" class="payment-method">${payment.method}</p>
+                    <p id="payment-txn-${payment.payment_id}" class="txn">TXN: ${payment.transaction_id}</p>
                 </div>
             </div>
-            <div class="payment-right">
-                <div class="payment-amount">₹${payment.amount.toLocaleString()}</div>
-                <div class="payment-status ${payment.status === 'success' ? 'paid' : 'pending'}">
-                    <span class="status-dot"></span>
+            <div id="payment-right-${payment.payment_id}" class="payment-right">
+                <div id="payment-amount-${payment.payment_id}" class="payment-amount">₹${payment.amount.toLocaleString()}</div>
+                <div id="payment-status-${payment.payment_id}" class="payment-status ${payment.status === 'success' ? 'paid' : 'pending'}">
+                    <span id="payment-status-dot-${payment.payment_id}" class="status-dot"></span>
                     ${payment.status === 'success' ? 'Success' : 'Pending'}
                 </div>
-                <p class="payment-date">${new Date(payment.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
-                <button class="delete-btn" onclick="deletePayment(${payment.payment_id})">Delete</button>
+                <p id="payment-date-${payment.payment_id}" class="payment-date">${new Date(payment.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                <button id="btn-delete-payment-${payment.payment_id}" class="delete-btn" onclick="deletePayment(${payment.payment_id})">Delete</button>
             </div>
         </div>
-    `).join(''), 'payments-list');
+    `).join('');
 }
 
 function deletePayment(paymentId) {
@@ -855,20 +838,20 @@ function displayGallery() {
     gallery = saved ? JSON.parse(saved) : [];
 
     if (gallery.length === 0) {
-        setInnerHTMLWithIds(container, '<p class="empty-message">No gallery items yet.</p>', 'gallery-empty');
+        container.innerHTML = '<p id="gallery-empty-msg" class="empty-message">No gallery items yet.</p>';
         return;
     }
 
-    setInnerHTMLWithIds(container, gallery.map((item, index) => `
-        <div class="gallery-item">
-            <img src="${item.url}" alt="${item.title}" class="gallery-image" onerror="this.src='https://via.placeholder.com/250x200'">
-            <div class="gallery-content">
-                <h4>${item.title}</h4>
-                <p>${item.desc}</p>
-                <button class="delete-btn" onclick="deleteGalleryItem(${index})">Delete</button>
+    container.innerHTML = gallery.map((item, index) => `
+        <div id="gallery-item-${item.id}" class="gallery-item">
+            <img id="gallery-img-${item.id}" src="${item.url}" alt="${item.title}" class="gallery-image" onerror="this.src='https://via.placeholder.com/250x200'">
+            <div id="gallery-content-${item.id}" class="gallery-content">
+                <h4 id="gallery-title-${item.id}">${item.title}</h4>
+                <p id="gallery-desc-${item.id}">${item.desc}</p>
+                <button id="btn-delete-gallery-${item.id}" class="delete-btn" onclick="deleteGalleryItem(${index})">Delete</button>
             </div>
         </div>
-    `).join(''), 'gallery-list');
+    `).join('');
 }
 
 function deleteGalleryItem(index) {
@@ -957,14 +940,14 @@ function displayBudget() {
     const remaining = budget.total - spent;
     const percentage = budget.total > 0 ? (spent / budget.total) * 100 : 0;
 
-    setInnerHTMLWithIds(container, `
-        <div class="budget-container budget-shell">
-            <div class="budget-form budget-form-main">
-                <h3>Set Budget Goal</h3>
+    container.innerHTML = `
+        <div id="budget-shell" class="budget-container budget-shell">
+            <div id="budget-form-main" class="budget-form budget-form-main">
+                <h3 id="budget-goal-title">Set Budget Goal</h3>
                 <input type="number" placeholder="Total Budget" id="totalBudget" value="${budget.total}">
-                <button onclick="updateBudget()">Update Total Budget</button>
+                <button id="btn-update-budget" onclick="updateBudget()">Update Total Budget</button>
 
-                <h3>Add Expense</h3>
+                <h3 id="budget-expense-title">Add Expense</h3>
                 <form id="budgetItemForm" onsubmit="addBudgetItem(event)">
                     <select id="budgetCategory">
                         <option value="Venue">Venue</option>
@@ -977,64 +960,79 @@ function displayBudget() {
                     </select>
                     <input type="text" id="budgetDescription" placeholder="Description (optional)">
                     <input type="number" id="budgetAmount" placeholder="Amount" required>
-                    <button type="submit">Add Expense</button>
+                    <button id="btn-add-expense" type="submit">Add Expense</button>
                 </form>
             </div>
 
-            <div class="budget-stats-wrap">
-                <div class="budget-stat">
+            <div id="budget-stats-wrap" class="budget-stats-wrap">
+                <div id="budget-stat-total" class="budget-stat">
                     <h3>Total Budget</h3>
-                    <div class="budget-value">₹${budget.total.toLocaleString()}</div>
+                    <div id="budget-total-value" class="budget-value">₹${budget.total.toLocaleString()}</div>
                 </div>
-                <div class="budget-stat">
+                <div id="budget-stat-spent" class="budget-stat">
                     <h3>Spent (Payments + Expenses)</h3>
-                    <div class="budget-value">₹${spent.toLocaleString()}</div>
+                    <div id="budget-spent-value" class="budget-value">₹${spent.toLocaleString()}</div>
                 </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
+                <div id="budget-progress-bar" class="progress-bar">
+                    <div id="budget-progress-fill" class="progress-fill" style="width: ${Math.min(percentage, 100)}%"></div>
                 </div>
-                <div class="budget-stat">
+                <div id="budget-stat-remaining" class="budget-stat">
                     <h3>Remaining</h3>
-                    <div class="budget-value" style="color: ${remaining < 0 ? '#ef4444' : '#ec4899'}">
+                    <div id="budget-remaining-value" class="budget-value" style="color: ${remaining < 0 ? '#ef4444' : '#ec4899'}">
                         ₹${Math.abs(remaining).toLocaleString()}
                     </div>
                 </div>
-                <p class="budget-breakdown">Payments: ₹${paymentSpent.toLocaleString()} | Manual Expenses: ₹${manualSpent.toLocaleString()}</p>
+                <p id="budget-breakdown" class="budget-breakdown">Payments: ₹${paymentSpent.toLocaleString()} | Manual Expenses: ₹${manualSpent.toLocaleString()}</p>
 
-                <div class="budget-items-list">
-                    <h3>Manual Expense Items</h3>
+                <div id="budget-items-list" class="budget-items-list">
+                    <h3 id="budget-items-title">Manual Expense Items</h3>
                     ${budgetItems.length === 0
-                        ? '<p class="empty-message">No manual expenses added yet.</p>'
+                        ? '<p id="budget-items-empty" class="empty-message">No manual expenses added yet.</p>'
                         : budgetItems.map(item => `
-                            <div class="budget-item-row">
-                                <div>
-                                    <strong>${item.description || item.category}</strong>
-                                    <p>${item.category}</p>
+                            <div id="budget-item-row-${item.item_id}" class="budget-item-row">
+                                <div id="budget-item-info-${item.item_id}">
+                                    <strong id="budget-item-name-${item.item_id}">${item.description || item.category}</strong>
+                                    <p id="budget-item-category-${item.item_id}">${item.category}</p>
                                 </div>
-                                <div>
-                                    <span>₹${Number(item.amount).toLocaleString()}</span>
-                                    <button class="delete-btn" onclick="deleteBudgetItem(${item.item_id})">Remove</button>
+                                <div id="budget-item-actions-${item.item_id}">
+                                    <span id="budget-item-amount-${item.item_id}">₹${Number(item.amount).toLocaleString()}</span>
+                                    <button id="btn-remove-expense-${item.item_id}" class="delete-btn" onclick="deleteBudgetItem(${item.item_id})">Remove</button>
                                 </div>
                             </div>
                         `).join('')}
                 </div>
             </div>
         </div>
-    `, 'budget');
+    `;
 }
 
 function showMessage(type, message) {
-    const messageDiv = document.createElement('div');
-    messageDiv.id = `message-${type}-${generatedIdCounter++}`;
+    // Reuse a single stable flash-message element to avoid dynamic IDs
+    let messageDiv = document.getElementById('flash-message');
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.id = 'flash-message';
+        document.body.appendChild(messageDiv);
+    }
+
+    // Clear any pending hide timer so a new message always shows fully
+    if (messageDiv._hideTimer) {
+        clearTimeout(messageDiv._hideTimer);
+        clearTimeout(messageDiv._removeTimer);
+    }
+
     messageDiv.className = `${type}-message`;
     messageDiv.textContent = message;
+    messageDiv.style.opacity = '1';
+    messageDiv.style.transition = '';
 
-    document.body.appendChild(messageDiv);
-
-    setTimeout(() => {
+    messageDiv._hideTimer = setTimeout(() => {
         messageDiv.style.opacity = '0';
         messageDiv.style.transition = 'opacity 0.3s';
-        setTimeout(() => messageDiv.remove(), 300);
+        messageDiv._removeTimer = setTimeout(() => {
+            messageDiv.style.opacity = '';
+            messageDiv.style.transition = '';
+        }, 300);
     }, 3000);
 }
 
