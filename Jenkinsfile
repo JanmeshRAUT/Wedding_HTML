@@ -11,11 +11,18 @@ pipeline {
             }
         }
 
-        stage('Build Complete') {
+        stage('Build Docker Image') {
             steps {
-                echo 'Application built successfully'
+                dir('EventPlanner-Basic') {
+                    bat 'docker build -t eventplanner-basic:latest .'
+                }
             }
         }
 
+        stage('Run Docker Container') {
+            steps {
+                bat 'docker run -d -p 3000:3000 --name eventplanner-app eventplanner-basic:latest'
+            }
+        }
     }
 }
