@@ -21,7 +21,16 @@ pipeline {
 
         stage('Run Docker Container') {
             steps {
-                bat 'docker run -d -p 3000:3000 --name eventplanner-app eventplanner-basic:latest'
+                bat '''
+                echo Cleaning old container if exists...
+
+                docker rm -f eventplanner-app 2>nul
+
+                echo Starting new container...
+                docker run -d -p 3000:3000 --name eventplanner-app eventplanner-basic:latest
+
+                echo Done!
+                '''
             }
         }
     }
