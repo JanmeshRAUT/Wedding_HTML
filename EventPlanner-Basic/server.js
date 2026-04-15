@@ -32,10 +32,13 @@ function connectToMongoDB() {
 
   if (!mongoConnectPromise) {
     mongoConnectPromise = mongoose.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
       maxPoolSize: 5,
       minPoolSize: 0,
-      maxIdleTimeMS: 15000
+      maxIdleTimeMS: 15000,
+      retryWrites: true,
+      w: 'majority'
     });
   }
 
