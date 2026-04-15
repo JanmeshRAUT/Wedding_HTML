@@ -2,12 +2,45 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import 'dotenv/config';
+import { mockVendors } from './data/mock-vendors.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const MONGODB_URI = process.env.DATABASE_URL || process.env.mongodb;
+const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const ALLOWED_ROLES = ['admin', 'user', 'vendor'];
+
+if (!JWT_SECRET) {
+  console.warn('JWT_SECRET is not set. Login/Register tokens will fail until configured.');
+}
+
+let mongoConnectPromise;
+
+function connectToMongoDB() {
+  if (!MONGODB_URI) {
+    console.warn('MongoDB URI not found. Set DATABASE_URL in .env to enable database connection.');
+    return Promise.resolve();
+  }
+
+  if (!mongoConnectPromise) {
+    mongoConnectPromise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      maxPoolSize: 5,
+      minPoolSize: 0,
+      maxIdleTimeMS: 15000
+    });
+  }
+
+  return mongoConnectPromise;
+}
 
 // Middleware
 app.use(cors());
@@ -19,181 +52,402 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+const userSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
+    phone: { type: String, default: '' },
+    password: { type: String, required: true, select: false },
+    role: { type: String, enum: ALLOWED_ROLES, default: 'user' }
+  },
+  { timestamps: true }
+);
+
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+const reviewSchema = new mongoose.Schema(
+  {
+    user: { type: String, required: true },
+    rating: { type: Number, required: true },
+    comment: { type: String, required: true }
+  },
+  { _id: false }
+);
+
+const vendorSchema = new mongoose.Schema(
+  {
+    id: { type: Number, required: true, unique: true, index: true },
+    name: { type: String, required: true, trim: true },
+    category: { type: String, required: true, trim: true },
+    rating: { type: Number, required: true },
+    price: { type: Number, required: true },
+    desc: { type: String, required: true },
+    img: { type: String, default: '' },
+    location: { type: String, default: '' },
+    email: { type: String, default: '', lowercase: true, trim: true },
+    reviews: { type: [reviewSchema], default: [] }
+  },
+  { timestamps: true }
+);
+
+const Vendor = mongoose.models.Vendor || mongoose.model('Vendor', vendorSchema);
+
+function normalizeRole(role) {
+  const rawRole = (role || 'user').toLowerCase().trim();
+  if (rawRole === 'vender') {
+    return 'vendor';
+  }
+  return rawRole;
+}
+
+function sanitizeUser(user) {
+  return {
+    id: user._id.toString(),
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role
+  };
+}
+
+function generateToken(user) {
+  if (!JWT_SECRET) {
+    return null;
+  }
+
+  return jwt.sign(
+    {
+      sub: user._id.toString(),
+      role: user.role,
+      email: user.email
+    },
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
+  );
+}
+
+function getAuthToken(req) {
+  const authHeader = req.headers.authorization || '';
+  if (authHeader.startsWith('Bearer ')) {
+    return authHeader.slice(7);
+  }
+  return req.headers['x-access-token'] || null;
+}
+
+function requireAdmin(req, res, next) {
+  if (!JWT_SECRET) {
+    return res.status(503).json({ success: false, message: 'JWT auth is not configured. Set JWT_SECRET first.' });
+  }
+
+  const token = getAuthToken(req);
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Missing auth token' });
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    if (payload.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Admin access required' });
+    }
+    req.auth = payload;
+    next();
+  } catch (_error) {
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
+}
+
+function requireAuth(req, res, next) {
+  if (!JWT_SECRET) {
+    return res.status(503).json({ success: false, message: 'JWT auth is not configured. Set JWT_SECRET first.' });
+  }
+
+  const token = getAuthToken(req);
+  if (!token) {
+    return res.status(401).json({ success: false, message: 'Missing auth token' });
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.auth = payload;
+    next();
+  } catch (_error) {
+    return res.status(401).json({ success: false, message: 'Invalid or expired token' });
+  }
+}
+
 // Data Storage (In-memory for demo)
-let users = [];
 let bookings = [];
-let vendors = [];
 let payments = [];
 let gallery = [];
 let budget = { total: 0, spent: 0 };
 let favorites = [];
 
-// Mock Vendors - Enhanced with detailed information
-const mockVendors = [
-  {
-    id: 1,
-    name: 'Vibrant Visions Photography',
-    category: 'Photography',
-    rating: 4.9,
-    price: 75000,
-    desc: 'Capturing the essence of weddings with cinematic brilliance. Professional photography and videography services.',
-    img: '📸',
-    location: 'Mumbai, Maharashtra',
-    email: 'contact@vibrantvisions.in',
-    reviews: [
-      { user: 'Ananya S.', rating: 5, comment: 'Absolutely amazing work! They captured every emotion perfectly.' },
-      { user: 'Rahul M.', rating: 4, comment: 'Great quality and professional team.' }
-    ]
-  },
-  {
-    id: 2,
-    name: 'Spice Route Catering',
-    category: 'Catering',
-    rating: 4.8,
-    price: 800,
-    desc: 'Authentic Indian flavors and international cuisines for your grand feast. Expert culinary team with 15+ years experience.',
-    img: '🍽️',
-    location: 'Delhi, NCR',
-    email: 'info@spiceroute.com',
-    reviews: [
-      { user: 'Priya K.', rating: 5, comment: 'The food was the highlight of our wedding. Everyone loved it!' }
-    ]
-  },
-  {
-    id: 3,
-    name: 'Royal Mandap Decorators',
-    category: 'Decoration',
-    rating: 4.7,
-    price: 150000,
-    desc: 'Traditional and contemporary wedding decor that feels like royalty. Custom designs for your vision.',
-    img: '🎨',
-    location: 'Bangalore, Karnataka',
-    email: 'royal@mandap.in',
-    reviews: [
-      { user: 'Suresh V.', rating: 4, comment: 'Beautiful setup, they transform venues amazingly.' }
-    ]
-  },
-  {
-    id: 4,
-    name: 'Shringar Bridal Studio',
-    category: 'Makeup Artist',
-    rating: 4.9,
-    price: 25000,
-    desc: 'Expert bridal makeup and styling for the perfect traditional and modern looks. Specializing in Indian and fusion weddings.',
-    img: '💄',
-    location: 'Chennai, Tamil Nadu',
-    email: 'shringar@beauty.com',
-    reviews: [
-      { user: 'Meera R.', rating: 5, comment: 'I felt like a queen! Thank you for the amazing makeover.' }
-    ]
-  },
-  {
-    id: 5,
-    name: 'Eternal Frames Studio',
-    category: 'Photography',
-    rating: 4.6,
-    price: 60000,
-    desc: 'Candid photography that captures every emotion of your special day. Beautiful, timeless moments preserved.',
-    img: '📷',
-    location: 'Pune, Maharashtra',
-    email: 'eternal@frames.in',
-    reviews: []
-  },
-  {
-    id: 6,
-    name: 'The Grand Ballroom',
-    category: 'Venue',
-    rating: 4.9,
-    price: 500000,
-    desc: 'Luxury wedding venue with stunning architecture and world-class facilities. Capacity for 200-1000 guests.',
-    img: '🏰',
-    location: 'Hyderabad, Telangana',
-    email: 'events@grandbballroom.com',
-    reviews: [
-      { user: 'Vikram P.', rating: 5, comment: 'Perfect venue, amazing staff, unforgettable experience!' }
-    ]
-  },
-  {
-    id: 7,
-    name: 'Harmony Music & DJ',
-    category: 'Music & DJ',
-    rating: 4.8,
-    price: 50000,
-    desc: 'Professional DJ and live music services for weddings. High-energy entertainment with state-of-the-art sound systems.',
-    img: '🎵',
-    location: 'Indore, Madhya Pradesh',
-    email: 'harmony@musicdj.com',
-    reviews: [
-      { user: 'Rohan D.', rating: 5, comment: 'Best DJ ever! Kept the dance floor packed all night!' }
-    ]
-  }
-];
-
 // ===== AUTH ROUTES =====
-app.post('/api/register', (req, res) => {
-  const { name, email, phone, password } = req.body;
+app.post('/api/register', async (req, res) => {
+  try {
+    const { name, email, phone, password, role } = req.body;
 
-  if (!name || !email || !password) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing required fields' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const normalizedRole = normalizeRole(role);
+
+    if (!ALLOWED_ROLES.includes(normalizedRole)) {
+      return res.status(400).json({ success: false, message: 'Invalid role. Use admin, user, or vendor.' });
+    }
+
+    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await User.create({
+      name,
+      email: normalizedEmail,
+      phone,
+      password: hashedPassword,
+      role: normalizedRole
+    });
+
+    const token = generateToken(user);
+    res.json({
+      success: true,
+      token,
+      user: sanitizeUser(user),
+      message: token ? 'Registration successful' : 'Registration successful. Set JWT_SECRET to enable auth tokens.'
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ success: false, message: 'Email already exists' });
+    }
+
+    res.status(500).json({ success: false, message: error.message || 'Registration failed' });
   }
-
-  const existingUser = users.find(u => u.email === email);
-  if (existingUser) {
-    return res.status(400).json({ success: false, message: 'Email already exists' });
-  }
-
-  const user = {
-    id: Date.now(),
-    name,
-    email,
-    phone,
-    password,
-    createdAt: new Date()
-  };
-
-  users.push(user);
-  res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
 });
 
-app.post('/api/login', (req, res) => {
-  const { email, password } = req.body;
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, message: 'Missing credentials' });
+    if (!email || !password) {
+      return res.status(400).json({ success: false, message: 'Missing credentials' });
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+    if (!user) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: 'Invalid credentials' });
+    }
+
+    const token = generateToken(user);
+    res.json({
+      success: true,
+      token,
+      user: sanitizeUser(user),
+      message: token ? 'Login successful' : 'Login successful. Set JWT_SECRET to enable auth tokens.'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Login failed' });
   }
-
-  const user = users.find(u => u.email === email && u.password === password);
-  if (!user) {
-    return res.status(401).json({ success: false, message: 'Invalid credentials' });
-  }
-
-  res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
 });
 
 // ===== USER ROUTES =====
-app.get('/api/users/:id', (req, res) => {
-  const user = users.find(u => u.id == req.params.id);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-  res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
+app.get('/api/users/:id', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    res.json({ success: true, user: sanitizeUser(user) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch user' });
+  }
 });
 
-app.put('/api/users/:id', (req, res) => {
-  const user = users.find(u => u.id == req.params.id);
-  if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+app.put('/api/users/:id', async (req, res) => {
+  try {
+    const updates = { ...req.body };
 
-  Object.assign(user, req.body);
-  res.json({ success: true, user: { id: user.id, name: user.name, email: user.email, phone: user.phone } });
+    if (typeof updates.email === 'string') {
+      updates.email = updates.email.toLowerCase().trim();
+    }
+
+    if (updates.role) {
+      updates.role = normalizeRole(updates.role);
+      if (!ALLOWED_ROLES.includes(updates.role)) {
+        return res.status(400).json({ success: false, message: 'Invalid role. Use admin, user, or vendor.' });
+      }
+    }
+
+    if (updates.password) {
+      updates.password = await bcrypt.hash(updates.password, 10);
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    res.json({ success: true, user: sanitizeUser(user) });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to update user' });
+  }
+});
+
+// ===== ADMIN ROUTES =====
+app.get('/api/admin/users', requireAdmin, async (req, res) => {
+  try {
+    const page = Math.max(Number(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(Number(req.query.limit) || 20, 1), 100);
+    const skip = (page - 1) * limit;
+    const role = req.query.role ? normalizeRole(String(req.query.role)) : null;
+    const search = String(req.query.search || '').trim();
+
+    const filter = {};
+    if (role) {
+      if (!ALLOWED_ROLES.includes(role)) {
+        return res.status(400).json({ success: false, message: 'Invalid role filter. Use admin, user, or vendor.' });
+      }
+      filter.role = role;
+    }
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    const [total, users] = await Promise.all([
+      User.countDocuments(filter),
+      User.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean()
+    ]);
+
+    const payloadUsers = users.map((user) => ({
+      ...sanitizeUser(user),
+      createdAt: user.createdAt
+    }));
+
+    res.json({
+      success: true,
+      users: payloadUsers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.max(Math.ceil(total / limit), 1)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch users' });
+  }
 });
 
 // ===== VENDORS ROUTES =====
-app.get('/api/vendors', (req, res) => {
-  res.json(mockVendors);
+app.get('/api/vendors', async (req, res) => {
+  try {
+    const vendors = await Vendor.find().sort({ id: 1 }).lean();
+    res.json(vendors);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch vendors' });
+  }
 });
 
-app.get('/api/vendors/:id', (req, res) => {
-  const vendor = mockVendors.find(v => v.id == req.params.id);
-  if (!vendor) return res.status(404).json({ success: false, message: 'Vendor not found' });
-  res.json(vendor);
+app.get('/api/vendors/:id', async (req, res) => {
+  try {
+    const vendor = await Vendor.findOne({ id: Number(req.params.id) }).lean();
+    if (!vendor) return res.status(404).json({ success: false, message: 'Vendor not found' });
+    res.json(vendor);
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch vendor' });
+  }
+});
+
+// ===== VENDOR DASHBOARD ROUTES =====
+app.get('/api/vendor/profile', requireAuth, async (req, res) => {
+  try {
+    if (req.auth.role !== 'vendor') {
+      return res.status(403).json({ success: false, message: 'Only vendors can access this' });
+    }
+
+    const vendor = await Vendor.findOne({ email: req.auth.email });
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor profile not found' });
+    }
+
+    res.json({
+      success: true,
+      vendor: {
+        id: vendor._id.toString(),
+        name: vendor.name,
+        category: vendor.category,
+        price: vendor.price,
+        desc: vendor.desc,
+        location: vendor.location,
+        email: vendor.email,
+        rating: vendor.rating,
+        reviews: vendor.reviews || [],
+        createdAt: vendor.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to fetch vendor profile' });
+  }
+});
+
+app.put('/api/vendor/profile', requireAuth, async (req, res) => {
+  try {
+    if (req.auth.role !== 'vendor') {
+      return res.status(403).json({ success: false, message: 'Only vendors can access this' });
+    }
+
+    const { name, category, price, desc, location } = req.body;
+
+    const vendor = await Vendor.findOneAndUpdate(
+      { email: req.auth.email },
+      {
+        name: name,
+        category: category,
+        price: price,
+        desc: desc,
+        location: location,
+        updatedAt: new Date()
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!vendor) {
+      return res.status(404).json({ success: false, message: 'Vendor profile not found' });
+    }
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully',
+      vendor: {
+        id: vendor._id.toString(),
+        name: vendor.name,
+        category: vendor.category,
+        price: vendor.price,
+        desc: vendor.desc,
+        location: vendor.location,
+        email: vendor.email,
+        rating: vendor.rating,
+        reviews: vendor.reviews || [],
+        createdAt: vendor.createdAt
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message || 'Failed to update vendor profile' });
+  }
 });
 
 // ===== BOOKINGS ROUTES =====
@@ -292,8 +546,22 @@ app.post('/api/contact', (req, res) => {
 
 // Start server only when running locally.
 if (!process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+  connectToMongoDB()
+    .then(() => {
+      if (MONGODB_URI) {
+        console.log('MongoDB connected');
+      }
+      app.listen(PORT, () => {
+        console.log(`Server running at http://localhost:${PORT}`);
+      });
+    })
+    .catch((error) => {
+      console.error('MongoDB connection failed:', error.message);
+      process.exit(1);
+    });
+} else {
+  connectToMongoDB().catch((error) => {
+    console.error('MongoDB connection failed:', error.message);
   });
 }
 

@@ -13,6 +13,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                
                 dir('EventPlanner-Basic') {
                     bat 'docker build -t eventplanner-basic:latest .'
                 }

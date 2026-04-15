@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" id="vendor-dash-html-1">
+<head id="vendor-dash-head-1">
+    <meta charset="UTF-8" id="vendor-dash-meta-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="vendor-dash-meta-2">
+    <title id="vendor-dash-title-1">EverAfter - Vendor Dashboard</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" id="vendor-dash-link-1">
+    <link rel="stylesheet" href="css/style.css" id="vendor-dash-link-2">
+    <link rel="stylesheet" href="css/tokens.css" id="vendor-dash-link-3">
+    <link rel="stylesheet" href="css/parity-layout.css" id="vendor-dash-link-4">
+    <link rel="stylesheet" href="css/parity-components.css" id="vendor-dash-link-5">
+    <link rel="stylesheet" href="css/parity-final.css" id="vendor-dash-link-6">
+</head>
+<body id="vendor-dash-body-1" class="vendor-dashboard-layout">
+    <!-- Top Navigation -->
+    <nav class="vendor-topbar" id="vendor-dash-topbar">
+        <div class="vendor-topbar-content">
+            <div class="vendor-brand">
+                <a href="index.html" class="vendor-logo">
+                    <span class="heart">❤️</span>
+                    <h1>EverAfter</h1>
+                </a>
+            </div>
+            <div class="vendor-topbar-right">
+                <span class="vendor-user-info" id="vendorUserInfo">Vendor Name</span>
+                <button class="vendor-logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Navigation -->
+    <aside class="vendor-sidebar" id="vendor-sidebar">
+        <nav class="vendor-nav">
+            <a href="#overview" class="vendor-nav-item active" onclick="switchVendorTab('overview', event)">
+                <span class="nav-icon">📊</span>
+                <span class="nav-label">Overview</span>
+            </a>
+            <a href="#new-business" class="vendor-nav-item" onclick="switchVendorTab('new-business', event)">
+                <span class="nav-icon">➕</span>
+                <span class="nav-label">New Business</span>
+            </a>
+            <a href="#profile" class="vendor-nav-item" onclick="switchVendorTab('profile', event)">
+                <span class="nav-icon">⚙️</span>
+                <span class="nav-label">My Profile</span>
+            </a>
+            <a href="profile.html" class="vendor-nav-item">
+                <span class="nav-icon">←</span>
+                <span class="nav-label">Back to Profile</span>
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="vendor-main-content" id="vendor-main">
+        <!-- OVERVIEW TAB -->
+        <section id="overview" class="vendor-tab-content active">
+            <div class="vendor-header">
+                <h2>Dashboard Overview</h2>
+                <p>Track your bookings, payments, and business analytics</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="vendor-stats-grid">
+                <div class="stats-card">
+                    <div class="stat-icon">📅</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Bookings</p>
+                        <p class="stat-value" id="totalBookings">0</p>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Total Revenue</p>
+                        <p class="stat-value" id="totalRevenue">₹0</p>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Completed</p>
+                        <p class="stat-value" id="completedBookings">0</p>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-info">
+                        <p class="stat-label">Pending</p>
+                        <p class="stat-value" id="pendingBookings">0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="vendor-section">
+                <h3>Recent Bookings</h3>
+                <div class="vendor-table-wrap">
+                    <table class="vendor-table">
+                        <thead>
+                            <tr>
+                                <th>User Name</th>
+                                <th>Email</th>
+                                <th>Event Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                            <tr>
+                                <td colspan="6" style="text-align: center; padding: 2rem;">No bookings yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Analytics -->
+            <div class="vendor-analytics">
+                <div class="analytics-card">
+                    <h3>Business Rating & Reviews</h3>
+                    <div class="rating-display">
+                        <p class="rating-value" id="vendorRating">4.9</p>
+                        <p class="rating-label">stars</p>
+                        <p class="review-count" id="reviewCount">(0 reviews)</p>
+                    </div>
+                </div>
+                <div class="analytics-card">
+                    <h3>Monthly Booking Trend</h3>
+                    <div class="trend-display">
+                        <div class="trend-bar">
+                            <div class="trend-fill" id="trendBar01" style="height: 20%;"></div>
+                            <span class="trend-label">Jan</span>
+                        </div>
+                        <div class="trend-bar">
+                            <div class="trend-fill" id="trendBar02" style="height: 45%;"></div>
+                            <span class="trend-label">Feb</span>
+                        </div>
+                        <div class="trend-bar">
+                            <div class="trend-fill" id="trendBar03" style="height: 65%;"></div>
+                            <span class="trend-label">Mar</span>
+                        </div>
+                        <div class="trend-bar">
+                            <div class="trend-fill" id="trendBar04" style="height: 35%;"></div>
+                            <span class="trend-label">Apr</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEW BUSINESS TAB -->
+        <section id="new-business" class="vendor-tab-content">
+            <div class="vendor-header">
+                <h2>Add New Service/Package</h2>
+                <p>Expand your offerings and attract more clients</p>
+            </div>
+
+            <form id="newBusinessForm" class="vendor-form" onsubmit="addNewBusiness(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="serviceName">Service Name</label>
+                        <input type="text" id="serviceName" placeholder="e.g., Premium Photography Package" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceCategory">Category</label>
+                        <select id="serviceCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Photography">Photography</option>
+                            <option value="Catering">Catering</option>
+                            <option value="Decoration">Decoration</option>
+                            <option value="Makeup Artist">Makeup Artist</option>
+                            <option value="Venue">Venue</option>
+                            <option value="Music & DJ">Music & DJ</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Invitations">Invitations</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="servicePrice">Price (₹)</label>
+                        <input type="number" id="servicePrice" placeholder="10000" min="0" step="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="serviceDuration">Duration (hours)</label>
+                        <input type="number" id="serviceDuration" placeholder="4" min="0" step="0.5" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceDesc">Service Description</label>
+                    <textarea id="serviceDesc" placeholder="Describe the service, what's included, what makes it special..." rows="6" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="serviceIncludes">What's Included (one per line)</label>
+                    <textarea id="serviceIncludes" placeholder="E.g., 8 hours coverage&#10;500+ edited photos&#10;Same-day preview&#10;Online gallery" rows="4" required></textarea>
+                </div>
+
+                <div class="vendor-actions">
+                    <button type="submit" class="vendor-btn-primary">Add Service Package</button>
+                    <button type="button" class="vendor-btn-secondary" onclick="resetNewBusinessForm()">Clear</button>
+                </div>
+            </form>
+
+            <!-- Services List -->
+            <div class="vendor-section">
+                <h3>Your Service Packages</h3>
+                <div id="servicesGrid" class="vendor-services-grid">
+                    <p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #888;">No services added yet</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- PROFILE TAB -->
+        <section id="profile" class="vendor-tab-content">
+            <div class="vendor-header">
+                <h2>Business Profile</h2>
+                <p>Update your business information</p>
+            </div>
+
+            <form id="vendorProfileForm" class="vendor-form" onsubmit="updateVendorProfile(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vendorName">Business Name</label>
+                        <input type="text" id="vendorName" placeholder="Your Business Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendorCategory">Category</label>
+                        <select id="vendorCategory" required>
+                            <option value="">Select Category</option>
+                            <option value="Photography">Photography</option>
+                            <option value="Catering">Catering</option>
+                            <option value="Decoration">Decoration</option>
+                            <option value="Makeup Artist">Makeup Artist</option>
+                            <option value="Venue">Venue</option>
+                            <option value="Music & DJ">Music & DJ</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Invitations">Invitations</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="vendorPrice">Base Price (₹)</label>
+                        <input type="number" id="vendorPrice" placeholder="Your Pricing" min="0" step="100" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="vendorLocation">City/Location</label>
+                        <input type="text" id="vendorLocation" placeholder="Your Location" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="vendorDesc">Service Description</label>
+                    <textarea id="vendorDesc" placeholder="Describe your services, experience, and specialties..." rows="5" required></textarea>
+                </div>
+
+                <div class="vendor-actions">
+                    <button type="submit" class="vendor-btn-primary">Save Changes</button>
+                    <button type="button" class="vendor-btn-secondary" onclick="resetVendorForm()">Cancel</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <footer class="footer" id="vendor-dash-footer-1"><p id="vendor-dash-p-2">&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
+    <script src="js/main.js" id="vendor-dash-script-1"></script>
+</body>
+</html>

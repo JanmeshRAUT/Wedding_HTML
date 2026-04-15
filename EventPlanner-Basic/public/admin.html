@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" id="admin-html-1">
+<head id="admin-head-1">
+    <meta charset="UTF-8" id="admin-meta-1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" id="admin-meta-2">
+    <title id="admin-title-1">EverAfter - Admin</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600;700&display=swap" id="admin-link-1">
+    <link rel="stylesheet" href="css/style.css" id="admin-link-2">
+    <link rel="stylesheet" href="css/tokens.css" id="admin-link-3">
+    <link rel="stylesheet" href="css/parity-layout.css" id="admin-link-4">
+    <link rel="stylesheet" href="css/parity-components.css" id="admin-link-5">
+    <link rel="stylesheet" href="css/parity-final.css" id="admin-link-6">
+</head>
+<body id="admin-body-1">
+    <nav class="navbar" id="admin-nav-1">
+        <div class="container nav-wrap" id="admin-div-1">
+            <a class="logo" href="index.html" id="admin-a-1"><span class="heart" id="admin-span-1">❤️</span><h1 id="admin-h1-1">EverAfter</h1></a>
+            <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
+            <ul class="nav-menu" id="navMenu">
+                <li id="admin-li-1"><a href="index.html" id="admin-a-2">Home</a></li>
+                <li id="admin-li-2"><a href="about.html" id="admin-a-3">About</a></li>
+                <li id="admin-li-3"><a href="contact.html" id="admin-a-4">Contact</a></li>
+                <li class="auth-nav" id="admin-li-4"><a href="register.html" id="admin-a-5">Register</a></li>
+                <li class="auth-nav" id="admin-li-5"><a class="login-btn" href="login.html" id="admin-a-6">Login</a></li>
+                <li class="user-nav" style="display:none;" id="admin-li-6"><a href="vendors.html" id="admin-a-7">Vendors</a></li>
+                <li class="user-nav" style="display:none;" id="admin-li-7"><a href="favorites.html" id="admin-a-8">Favorites</a></li>
+                <li class="user-nav" style="display:none;" id="admin-li-8"><a href="bookings.html" id="admin-a-9">My Bookings</a></li>
+                <li id="user-profile" class="user-profile" style="display:none;">
+                    <a href="profile.html" id="admin-a-11"><span id="user-name">User</span></a>
+                    <a class="logout-btn" onclick="logout()" id="admin-a-12">Logout</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="page-standard" id="admin-main-1">
+        <div class="admin-panel" id="admin-div-2">
+            <div class="admin-head" id="admin-head-row">
+                <h2 id="admin-h2-1">Admin User Directory</h2>
+                <a class="inline-link" id="admin-back-profile" href="profile.html">Back to Profile</a>
+            </div>
+            <p id="admin-p-1">Search and filter all registered users from MongoDB.</p>
+
+                <form id="admin-filter-form" class="admin-filter-grid" onsubmit="loadAdminUsers(event)">
+                    <input id="adminSearch" type="text" placeholder="Search name or email">
+                    <select id="adminRole">
+                        <option value="">All Roles</option>
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="vendor">Vendor</option>
+                    </select>
+                    <input id="adminPage" type="number" min="1" value="1" placeholder="Page">
+                    <input id="adminLimit" type="number" min="1" max="100" value="20" placeholder="Limit">
+                    <button type="submit" id="admin-btn-load">Load Users</button>
+                </form>
+
+                <div class="admin-table-wrap" id="admin-table-wrap">
+                    <table class="admin-table" id="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Role</th>
+                                <th>Joined</th>
+                                <th>User ID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersBody">
+                            <tr>
+                                <td colspan="6">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <p id="adminPager" class="admin-pager"></p>
+                <div class="admin-pagination-controls" id="admin-pagination-controls">
+                    <button type="button" id="adminPrevBtn" onclick="changeAdminPage(-1)">Previous</button>
+                    <button type="button" id="adminNextBtn" onclick="changeAdminPage(1)">Next</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer" id="admin-footer-1"><p id="admin-p-2">&copy; 2026 EverAfter Wedding Planner. All rights reserved.</p></footer>
+    <script src="js/main.js" id="admin-script-1"></script>
+</body>
+</html>

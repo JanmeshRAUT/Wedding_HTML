@@ -6,11 +6,19 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "seed:users": "node scripts/seed-users.js",
+    "seed:users:reset": "node scripts/seed-users.js --reset",
+    "seed:users:17": "node scripts/seed-users.js --users-only --count=17 --reset-users-only",
+    "seed:vendors": "node scripts/seed-vendors.js",
+    "seed:vendors:reset": "node scripts/seed-vendors.js --reset"
   },
   "dependencies": {
-    "express": "^4.21.2",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
-    "dotenv": "^17.2.3"
+    "dotenv": "^17.2.3",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.4.1"
   }
 }

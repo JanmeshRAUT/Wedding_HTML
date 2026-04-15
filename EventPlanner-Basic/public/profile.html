@@ -14,7 +14,7 @@
 <body id="profile-body-1">
     <nav class="navbar" id="profile-nav-1">
         <div class="container nav-wrap" id="profile-div-1">
-            <a class="logo" href="index.html" id="profile-a-1"><span class="heart" id="profile-span-1">&#10084;</span><h1 id="profile-h1-1">EverAfter</h1></a>
+            <a class="logo" href="index.html" id="profile-a-1"><span class="heart" id="profile-span-1">❤️</span><h1 id="profile-h1-1">EverAfter</h1></a>
             <button id="menuToggle" class="menu-toggle" type="button" aria-label="Toggle menu">&#9776;</button>
             <ul class="nav-menu" id="navMenu">
                 <li id="profile-li-1"><a href="index.html" id="profile-a-2">Home</a></li>
@@ -28,6 +28,7 @@
                 <li class="user-nav" style="display:none;" id="profile-li-9"><a href="payments.html" id="profile-a-10">Payments</a></li>
                 <li class="user-nav" style="display:none;" id="profile-li-10"><a href="budget.html" id="profile-a-11">Budget</a></li>
                 <li class="user-nav" style="display:none;" id="profile-li-11"><a href="gallery.html" id="profile-a-12">Gallery</a></li>
+
                 <li id="user-profile" class="user-profile" style="display:none;">
                     <a href="profile.html" id="profile-a-13"><span id="user-name">User</span></a>
                     <a class="logout-btn" onclick="logout()" id="profile-a-14">Logout</a>
@@ -47,6 +48,16 @@
                     <button type="button" class="edit-btn" onclick="enableEdit()" id="profile-button-1">Edit Profile</button>
                     <button type="submit" style="display:none;" id="save-btn">Save Changes</button>
                 </form>
+                <div class="profile-admin-cta" id="profile-admin-cta" style="display:none;">
+                    <h3>Admin Tools</h3>
+                    <p>Manage registered users from the admin dashboard.</p>
+                    <button type="button" onclick="goToAdminDashboard()">Open Admin Dashboard</button>
+                </div>
+                <div class="profile-vendor-cta" id="profile-vendor-cta" style="display:none;">
+                    <h3>My Business Dashboard</h3>
+                    <p>Manage your business profile, pricing, and services.</p>
+                    <button type="button" onclick="goToVendorDashboard()">Open Business Dashboard</button>
+                </div>
             </div>
         </div>
     </main>

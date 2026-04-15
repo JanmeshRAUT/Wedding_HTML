@@ -6,6 +6,7 @@ let favorites = [];
 let payments = [];
 let gallery = [];
 let budget = { total: 0, spent: 0 };
+let adminPagination = { page: 1, totalPages: 1, limit: 20, total: 0 };
 
 const routeMap = {
     home: 'index.html',
@@ -21,7 +22,8 @@ const routeMap = {
     payments: 'payments.html',
     budget: 'budget.html',
     gallery: 'gallery.html',
-    profile: 'profile.html'
+    profile: 'profile.html',
+    admin: 'admin.html'
 };
 
 const protectedPages = new Set([
@@ -33,7 +35,9 @@ const protectedPages = new Set([
     'payments.html',
     'budget.html',
     'gallery.html',
-    'profile.html'
+    'profile.html',
+    'admin.html',
+    'vendor-dashboard.html'
 ]);
 
 // Mock vendors data
@@ -137,6 +141,21 @@ const mockVendors = [
     }
 ];
 
+let vendorCatalog = [...mockVendors];
+
+async function loadVendorsFromApi() {
+    try {
+        const response = await fetch('/api/vendors');
+        if (!response.ok) return;
+        const data = await response.json();
+        if (Array.isArray(data) && data.length > 0) {
+            vendorCatalog = data;
+        }
+    } catch (_error) {
+        // Keep local fallback data when API is unreachable.
+    }
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     checkUserLogin();
@@ -148,55 +167,91 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ===== AUTHENTICATION =====
-function register(event) {
+async function register(event) {
     event.preventDefault();
 
-    const user = {
-        id: Date.now(),
-        name: document.getElementById('regName').value,
-        email: document.getElementById('regEmail').value,
-        phone: document.getElementById('regPhone').value,
-        password: document.getElementById('regPassword').value
-    };
+    try {
+        const payload = {
+            name: document.getElementById('regName').value,
+            email: document.getElementById('regEmail').value,
+            phone: document.getElementById('regPhone').value,
+            password: document.getElementById('regPassword').value,
+            role: 'user'
+        };
 
-    localStorage.setItem('wedding_user', JSON.stringify(user));
-    currentUser = user;
-    showMessage('success', 'Registration successful! Welcome!');
-    setTimeout(() => showSection('home'), 800);
-    updateAuthUI();
+        const response = await fetch('/api/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Registration failed');
+        }
+
+        currentUser = result.user;
+        localStorage.setItem('wedding_user', JSON.stringify(result.user));
+        if (result.token) {
+            localStorage.setItem('wedding_token', result.token);
+        } else {
+            localStorage.removeItem('wedding_token');
+        }
+        showMessage('success', 'Registration successful! Welcome!');
+        document.getElementById('registerForm').reset();
+        updateAuthUI();
+        setTimeout(() => showSection('home'), 800);
+    } catch (error) {
+        showMessage('error', error.message || 'Registration failed');
+    }
 }
 
-function login(event) {
+async function login(event) {
     event.preventDefault();
 
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    try {
+        const payload = {
+            email: document.getElementById('loginEmail').value,
+            password: document.getElementById('loginPassword').value
+        };
 
-    // For demo: accept any credentials
-    const user = {
-        id: Date.now(),
-        name: email.split('@')[0],
-        email: email,
-        phone: '(555) 123-4567',
-        password: password
-    };
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-    localStorage.setItem('wedding_user', JSON.stringify(user));
-    currentUser = user;
-    showMessage('success', 'Login successful!');
-    document.getElementById('loginForm').reset();
-    const nextPage = localStorage.getItem('after_login_page');
-    if (nextPage) {
-        localStorage.removeItem('after_login_page');
-        setTimeout(() => { window.location.href = nextPage; }, 600);
-    } else {
-        setTimeout(() => showSection('home'), 800);
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Login failed');
+        }
+
+        currentUser = result.user;
+        localStorage.setItem('wedding_user', JSON.stringify(result.user));
+        if (result.token) {
+            localStorage.setItem('wedding_token', result.token);
+        } else {
+            localStorage.removeItem('wedding_token');
+        }
+        showMessage('success', 'Login successful!');
+        document.getElementById('loginForm').reset();
+        updateAuthUI();
+
+        const nextPage = localStorage.getItem('after_login_page');
+        if (nextPage) {
+            localStorage.removeItem('after_login_page');
+            setTimeout(() => { window.location.href = nextPage; }, 600);
+        } else {
+            setTimeout(() => showSection('home'), 800);
+        }
+    } catch (error) {
+        showMessage('error', error.message || 'Login failed');
     }
-    updateAuthUI();
 }
 
 function logout() {
     localStorage.removeItem('wedding_user');
+    localStorage.removeItem('wedding_token');
     currentUser = null;
     showMessage('success', 'Logged out successfully');
     setTimeout(() => showSection('home'), 1000);
@@ -214,11 +269,13 @@ function checkUserLogin() {
 function updateAuthUI() {
     const authNav = document.querySelectorAll('.auth-nav');
     const userNav = document.querySelectorAll('.user-nav');
+    const adminNav = document.querySelectorAll('.admin-nav');
     const userProfile = document.getElementById('user-profile');
 
     if (currentUser) {
         authNav.forEach(el => el.style.display = 'none');
         userNav.forEach(el => el.style.display = 'block');
+        adminNav.forEach(el => el.style.display = currentUser.role === 'admin' ? 'block' : 'none');
         if (userProfile) {
             userProfile.style.display = 'flex';
             const nameSpan = document.getElementById('user-name');
@@ -229,6 +286,7 @@ function updateAuthUI() {
     } else {
         authNav.forEach(el => el.style.display = 'block');
         userNav.forEach(el => el.style.display = 'none');
+        adminNav.forEach(el => el.style.display = 'none');
         if (userProfile) userProfile.style.display = 'none';
     }
 }
@@ -322,13 +380,18 @@ function openVendorDetails(vendorId) {
     window.location.href = `vendor-details.html?id=${vendorId}`;
 }
 
+function normalizeCategoryValue(value) {
+    return String(value || '').toLowerCase().replace(/\s|\/|&/g, '');
+}
+
 function filterVendors() {
     const search = document.getElementById('vendorSearch').value.toLowerCase();
     const category = document.getElementById('categoryFilter').value;
+    const normalizedCategory = normalizeCategoryValue(category);
 
-    const filtered = mockVendors.filter(v => 
+    const filtered = vendorCatalog.filter(v => 
         (v.name.toLowerCase().includes(search) || v.desc.toLowerCase().includes(search)) &&
-        (!category || v.category === category)
+        (!category || normalizeCategoryValue(v.category) === normalizedCategory)
     );
 
     displayVendors(filtered);
@@ -343,13 +406,13 @@ function toggleFavorite(vendorId) {
         showMessage('success', 'Added to favorites!');
     }
     localStorage.setItem('wedding_favorites', JSON.stringify(favorites));
-    displayVendors(mockVendors, 'vendorsList');
+    displayVendors(vendorCatalog, 'vendorsList');
     displayFavorites();
 }
 
 // ===== FAVORITES =====
 function displayFavorites() {
-    const favoriteVendors = mockVendors.filter(v => favorites.includes(v.id));
+    const favoriteVendors = vendorCatalog.filter(v => favorites.includes(v.id));
     const container = document.getElementById('favoritesList');
     if (!container) return;
 
@@ -367,7 +430,7 @@ function displayVendorDetails() {
 
     const params = new URLSearchParams(window.location.search);
     const vendorId = Number(params.get('id'));
-    const vendor = mockVendors.find(v => v.id === vendorId);
+    const vendor = vendorCatalog.find(v => v.id === vendorId);
 
     if (!vendor) {
         mount.innerHTML = `
@@ -439,7 +502,7 @@ function bookVendor(vendorId, vendorName) {
         return;
     }
 
-    const selectedVendor = mockVendors.find(v => v.id === vendorId);
+    const selectedVendor = vendorCatalog.find(v => v.id === vendorId);
     const booking = normalizeBooking({
         booking_id: Date.now(),
         user_id: String(currentUser.id),
@@ -1036,6 +1099,295 @@ function showMessage(type, message) {
     }, 3000);
 }
 
+// ===== VENDOR DASHBOARD FUNCTIONS =====
+function goToVendorDashboard() {
+    if (!currentUser) {
+        showMessage('error', 'Please login first');
+        return;
+    }
+    if (currentUser.role !== 'vendor') {
+        showMessage('error', 'Only vendors can access the dashboard');
+        return;
+    }
+    window.location.href = 'vendor-dashboard.html';
+}
+
+// ===== UPDATED LOAD VENDOR PROFILE WITH NEW FEATURES =====
+async function loadVendorProfile() {
+    try {
+        const token = localStorage.getItem('wedding_token');
+        if (!token) {
+            showMessage('error', 'Please login to access vendor dashboard');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const response = await fetch('/api/vendor/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            console.error('Failed to load vendor profile:', data.message);
+            showMessage('error', data.message || 'Failed to load vendor profile');
+            return;
+        }
+
+        const vendor = data.vendor;
+
+        // Update top bar user info
+        document.getElementById('vendorUserInfo').textContent = vendor.name || 'Vendor';
+
+        // Populate profile form fields
+        document.getElementById('vendorName').value = vendor.name || '';
+        document.getElementById('vendorCategory').value = vendor.category || '';
+        document.getElementById('vendorPrice').value = vendor.price || 0;
+        document.getElementById('vendorLocation').value = vendor.location || '';
+        document.getElementById('vendorDesc').value = vendor.desc || '';
+
+        // Display analytics data
+        document.getElementById('vendorRating').textContent = vendor.rating ? vendor.rating.toFixed(1) : '4.9';
+        document.getElementById('reviewCount').textContent = `(${vendor.reviews ? vendor.reviews.length : 0} reviews)`;
+
+        // Load bookings and analytics
+        await loadVendorAnalytics();
+
+        // Display vendor services
+        displayVendorServices();
+
+    } catch (error) {
+        console.error('Error loading vendor profile:', error);
+        showMessage('error', 'Failed to load vendor profile');
+    }
+}
+
+async function updateVendorProfile(event) {
+    event.preventDefault();
+
+    const token = localStorage.getItem('wedding_token');
+    if (!token) {
+        showMessage('error', 'Please login to update profile');
+        return;
+    }
+
+    const vendorData = {
+        name: document.getElementById('vendorName').value,
+        category: document.getElementById('vendorCategory').value,
+        price: Number(document.getElementById('vendorPrice').value),
+        location: document.getElementById('vendorLocation').value,
+        desc: document.getElementById('vendorDesc').value
+    };
+
+    try {
+        const response = await fetch('/api/vendor/profile', {
+            method: 'PUT',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(vendorData)
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showMessage('error', data.message || 'Failed to update profile');
+            return;
+        }
+
+        showMessage('success', 'Profile updated successfully!');
+        // Reload profile data to refresh stats
+        setTimeout(() => loadVendorProfile(), 500);
+
+    } catch (error) {
+        console.error('Error updating vendor profile:', error);
+        showMessage('error', 'Failed to update profile');
+    }
+}
+
+function resetVendorForm() {
+    loadVendorProfile();
+    showMessage('info', 'Form reset');
+}
+
+// ===== VENDOR DASHBOARD TAB SWITCHING =====
+function switchVendorTab(tabName, event) {
+    event.preventDefault();
+
+    // Hide all tabs
+    const tabs = document.querySelectorAll('.vendor-tab-content');
+    tabs.forEach(tab => tab.classList.remove('active'));
+
+    // Remove active class from all nav items
+    const navItems = document.querySelectorAll('.vendor-nav-item');
+    navItems.forEach(item => item.classList.remove('active'));
+
+    // Show selected tab
+    const selectedTab = document.getElementById(tabName);
+    if (selectedTab) {
+        selectedTab.classList.add('active');
+    }
+
+    // Add active class to clicked nav item
+    event.target.closest('.vendor-nav-item')?.classList.add('active');
+}
+
+// ===== ADD NEW BUSINESS SERVICE =====
+async function addNewBusiness(event) {
+    event.preventDefault();
+
+    const token = localStorage.getItem('wedding_token');
+    if (!token) {
+        showMessage('error', 'Please login to add services');
+        return;
+    }
+
+    const serviceData = {
+        name: document.getElementById('serviceName').value,
+        category: document.getElementById('serviceCategory').value,
+        price: Number(document.getElementById('servicePrice').value),
+        duration: Number(document.getElementById('serviceDuration').value),
+        desc: document.getElementById('serviceDesc').value,
+        includes: document.getElementById('serviceIncludes').value
+            .split('\n')
+            .filter(item => item.trim())
+            .map(item => item.trim())
+    };
+
+    try {
+        // For now, store in localStorage (later can be moved to backend)
+        let services = JSON.parse(localStorage.getItem('vendor_services') || '[]');
+        services.push({
+            ...serviceData,
+            id: Date.now(),
+            createdAt: new Date().toISOString()
+        });
+        localStorage.setItem('vendor_services', JSON.stringify(services));
+
+        showMessage('success', 'Service package added successfully!');
+        document.getElementById('newBusinessForm').reset();
+        displayVendorServices();
+
+    } catch (error) {
+        console.error('Error adding service:', error);
+        showMessage('error', 'Failed to add service');
+    }
+}
+
+function resetNewBusinessForm() {
+    document.getElementById('newBusinessForm').reset();
+    showMessage('info', 'Form cleared');
+}
+
+// ===== DISPLAY VENDOR SERVICES =====
+function displayVendorServices() {
+    const servicesGrid = document.getElementById('servicesGrid');
+    if (!servicesGrid) return;
+
+    const services = JSON.parse(localStorage.getItem('vendor_services') || '[]');
+
+    if (services.length === 0) {
+        servicesGrid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #888;">No services added yet</p>';
+        return;
+    }
+
+    servicesGrid.innerHTML = services.map(service => `
+        <div class="service-card">
+            <h4>${service.name}</h4>
+            <p class="service-duration">⏱️ ${service.duration} hours</p>
+            <p class="service-price">₹${service.price.toLocaleString('en-IN')}</p>
+            <p class="service-desc">${service.desc}</p>
+            <div class="service-includes">
+                <strong>Includes:</strong>
+                <ul style="margin: 0.5rem 0 0 1.5rem;">
+                    ${service.includes.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+            </div>
+            <button class="vendor-btn-secondary" onclick="deleteVendorService(${service.id})" style="width: 100%;">Delete</button>
+        </div>
+    `).join('');
+}
+
+function deleteVendorService(serviceId) {
+    if (!confirm('Delete this service?')) return;
+
+    let services = JSON.parse(localStorage.getItem('vendor_services') || '[]');
+    services = services.filter(s => s.id !== serviceId);
+    localStorage.setItem('vendor_services', JSON.stringify(services));
+
+    displayVendorServices();
+    showMessage('success', 'Service deleted');
+}
+
+// ===== LOAD VENDOR ANALYTICS AND BOOKINGS =====
+async function loadVendorAnalytics() {
+    try {
+        // Mock booking data - in production, fetch from API
+        const mockBookings = [
+            {
+                userName: 'Raj Kumar',
+                email: 'raj.kumar@example.com',
+                eventDate: '2026-05-15',
+                amount: 75000,
+                status: 'confirmed',
+                payment: 'completed'
+            },
+            {
+                userName: 'Priya Sharma',
+                email: 'priya.sharma@example.com',
+                eventDate: '2026-06-20',
+                amount: 85000,
+                status: 'pending',
+                payment: 'pending'
+            },
+            {
+                userName: 'Amit Singh',
+                email: 'amit.singh@example.com',
+                eventDate: '2026-04-10',
+                amount: 65000,
+                status: 'completed',
+                payment: 'completed'
+            }
+        ];
+
+        // Update stats
+        const totalBookings = mockBookings.length;
+        const totalRevenue = mockBookings.reduce((sum, b) => sum + b.amount, 0);
+        const completedBookings = mockBookings.filter(b => b.status === 'completed').length;
+        const pendingBookings = mockBookings.filter(b => b.status === 'pending').length;
+
+        document.getElementById('totalBookings').textContent = totalBookings;
+        document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toLocaleString('en-IN');
+        document.getElementById('completedBookings').textContent = completedBookings;
+        document.getElementById('pendingBookings').textContent = pendingBookings;
+
+        // Update bookings table
+        const tableBody = document.getElementById('bookingsTableBody');
+        if (tableBody && mockBookings.length > 0) {
+            tableBody.innerHTML = mockBookings.map(booking => `
+                <tr>
+                    <td>${booking.userName}</td>
+                    <td>${booking.email}</td>
+                    <td>${new Date(booking.eventDate).toLocaleDateString('en-IN')}</td>
+                    <td>₹${booking.amount.toLocaleString('en-IN')}</td>
+                    <td><span style="background: ${booking.status === 'completed' ? '#dffcf0' : '#fff3cd'}; color: ${booking.status === 'completed' ? '#0f766e' : '#664d03'}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">${booking.status}</span></td>
+                    <td><span style="background: ${booking.payment === 'completed' ? '#c6f6d5' : '#fed7d7'}; color: ${booking.payment === 'completed' ? '#22543d' : '#742a2a'}; padding: 0.4rem 0.8rem; border-radius: 6px; font-size: 0.85rem;">${booking.payment}</span></td>
+                </tr>
+            `).join('');
+        }
+
+    } catch (error) {
+        console.error('Error loading analytics:', error);
+    }
+}
+
+// ===== UPDATED LOAD VENDOR PROFILE WITH NEW FEATURES =====
+
 function sendContact(event) {
     event.preventDefault();
     const name = document.getElementById('contactName').value;
@@ -1080,6 +1432,138 @@ function guardProtectedPage() {
     if (!currentUser && protectedPages.has(page)) {
         localStorage.setItem('after_login_page', page);
         window.location.href = 'login.html';
+        return;
+    }
+
+    if (page === 'admin.html' && currentUser?.role !== 'admin') {
+        showMessage('error', 'Admin access required');
+        setTimeout(() => { window.location.href = 'index.html'; }, 600);
+    }
+
+    if (page === 'vendor-dashboard.html' && currentUser?.role !== 'vendor') {
+        showMessage('error', 'Vendor access required');
+        setTimeout(() => { window.location.href = 'index.html'; }, 600);
+    }
+}
+
+function renderAdminPaginationControls() {
+    const prevBtn = document.getElementById('adminPrevBtn');
+    const nextBtn = document.getElementById('adminNextBtn');
+
+    if (!prevBtn || !nextBtn) return;
+
+    prevBtn.disabled = adminPagination.page <= 1;
+    nextBtn.disabled = adminPagination.page >= adminPagination.totalPages;
+}
+
+function changeAdminPage(delta) {
+    const pageInput = document.getElementById('adminPage');
+    if (!pageInput) return;
+
+    const nextPage = Math.min(
+        Math.max(adminPagination.page + delta, 1),
+        Math.max(adminPagination.totalPages, 1)
+    );
+
+    if (nextPage === adminPagination.page) return;
+
+    pageInput.value = String(nextPage);
+    loadAdminUsers();
+}
+
+function goToAdminDashboard() {
+    if (currentUser?.role !== 'admin') {
+        showMessage('error', 'Admin access required');
+        return;
+    }
+    window.location.href = 'admin.html';
+}
+
+async function loadAdminUsers(event) {
+    if (event) event.preventDefault();
+
+    const pageInput = document.getElementById('adminPage');
+    const limitInput = document.getElementById('adminLimit');
+    const roleInput = document.getElementById('adminRole');
+    const searchInput = document.getElementById('adminSearch');
+    const tableBody = document.getElementById('adminUsersBody');
+    const pager = document.getElementById('adminPager');
+
+    if (!tableBody || !pager) return;
+
+    const token = localStorage.getItem('wedding_token');
+    if (!token) {
+        tableBody.innerHTML = '<tr><td colspan="6">Missing JWT token. Please login again as admin.</td></tr>';
+        pager.textContent = '';
+        return;
+    }
+
+    const page = Math.max(Number(pageInput?.value || 1), 1);
+    const limit = Math.min(Math.max(Number(limitInput?.value || 20), 1), 100);
+
+    if (pageInput) pageInput.value = String(page);
+    if (limitInput) limitInput.value = String(limit);
+    const role = roleInput?.value || '';
+    const search = searchInput?.value?.trim() || '';
+
+    const params = new URLSearchParams({
+        page: String(page),
+        limit: String(limit)
+    });
+
+    if (role) params.set('role', role);
+    if (search) params.set('search', search);
+
+    try {
+        tableBody.innerHTML = '<tr><td colspan="6">Loading users...</td></tr>';
+        const response = await fetch(`/api/admin/users?${params.toString()}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+        const result = await response.json();
+
+        if (!response.ok || !result.success) {
+            throw new Error(result.message || 'Failed to load users');
+        }
+
+        if (!result.users || result.users.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="6">No users found.</td></tr>';
+            adminPagination = {
+                page: result.pagination.page,
+                totalPages: result.pagination.totalPages,
+                limit: result.pagination.limit,
+                total: result.pagination.total
+            };
+            pager.textContent = `Page ${result.pagination.page} of ${result.pagination.totalPages}`;
+            renderAdminPaginationControls();
+            return;
+        }
+
+        tableBody.innerHTML = result.users.map((u) => `
+            <tr>
+                <td>${u.name}</td>
+                <td>${u.email}</td>
+                <td>${u.phone || '-'}</td>
+                <td>${u.role}</td>
+                <td>${new Date(u.createdAt).toLocaleDateString('en-IN')}</td>
+                <td>${u.id}</td>
+            </tr>
+        `).join('');
+
+        adminPagination = {
+            page: result.pagination.page,
+            totalPages: result.pagination.totalPages,
+            limit: result.pagination.limit,
+            total: result.pagination.total
+        };
+
+        pager.textContent = `Page ${result.pagination.page} of ${result.pagination.totalPages} | Total: ${result.pagination.total}`;
+        renderAdminPaginationControls();
+    } catch (error) {
+        tableBody.innerHTML = `<tr><td colspan="6">${error.message || 'Failed to load users'}</td></tr>`;
+        pager.textContent = '';
+        renderAdminPaginationControls();
     }
 }
 
@@ -1088,11 +1572,13 @@ function loadFavorites() {
     favorites = saved ? JSON.parse(saved) : [];
 }
 
-function hydratePageData() {
+async function hydratePageData() {
     const page = getCurrentPageName();
 
+    await loadVendorsFromApi();
+
     if (document.getElementById('vendorsList')) {
-        displayVendors(mockVendors, 'vendorsList');
+        displayVendors(vendorCatalog, 'vendorsList');
     }
 
     if (document.getElementById('vendorDetailsMount')) {
@@ -1131,9 +1617,26 @@ function hydratePageData() {
         const nameInput = document.getElementById('profileName');
         const emailInput = document.getElementById('profileEmail');
         const phoneInput = document.getElementById('profilePhone');
+        const adminCta = document.getElementById('profile-admin-cta');
+        const vendorCta = document.getElementById('profile-vendor-cta');
         if (nameInput) nameInput.value = currentUser.name;
         if (emailInput) emailInput.value = currentUser.email;
         if (phoneInput) phoneInput.value = currentUser.phone;
+        if (adminCta) adminCta.style.display = currentUser.role === 'admin' ? 'block' : 'none';
+        if (vendorCta) vendorCta.style.display = currentUser.role === 'vendor' ? 'block' : 'none';
+    }
+
+    if (page === 'vendor-dashboard.html' && currentUser) {
+        if (currentUser.role !== 'vendor') {
+            showMessage('error', 'Only vendors can access this page');
+            window.location.href = 'profile.html';
+            return;
+        }
+        loadVendorProfile();
+    }
+
+    if (page === 'admin.html') {
+        await loadAdminUsers();
     }
 
     // No booking form in parity layout: bookings are created from vendor action.
