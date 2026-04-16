@@ -34,11 +34,13 @@ function connectToMongoDB() {
     mongoConnectPromise = mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000,
-      maxPoolSize: 5,
-      minPoolSize: 0,
-      maxIdleTimeMS: 15000,
+      connectTimeoutMS: 10000,
+      maxPoolSize: 10,
+      minPoolSize: 2,
+      maxIdleTimeMS: 30000,
       retryWrites: true,
-      w: 'majority'
+      w: 'majority',
+      family: 4
     });
   }
 

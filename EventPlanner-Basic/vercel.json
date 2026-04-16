@@ -5,14 +5,18 @@
       "src": "server.js",
       "use": "@vercel/node",
       "config": {
-        "includeFiles": "public/**"
+        "includeFiles": "public/**",
+        "maxDuration": 30
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "server.js"
+      "dest": "server.js",
+      "headers": {
+        "Cache-Control": "public, max-age=3600"
+      }
     }
   ]
 }
