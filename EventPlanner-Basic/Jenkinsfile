@@ -1,7 +1,7 @@
 pipeline {
     agent any
     tools {
-        nodejs 'NodeJS_18' // Ensure this matches your Jenkins global tool config
+        nodejs 'NodeJS_20' // Ensure this matches your Jenkins global tool config
     }
     environment {
         DOCKER_IMAGE = 'eventplanner-basic:latest'
