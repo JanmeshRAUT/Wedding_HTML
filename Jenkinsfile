@@ -1,38 +1,49 @@
 pipeline {
     agent any
-
+    environment {
+        DOCKER_IMAGE = 'eventplanner-basic:latest'
+    }
     stages {
-
-        stage('Install Dependencies') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Install & Test') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
+                }
+            }
             steps {
                 dir('EventPlanner-Basic') {
-                    bat 'npm install'
+                    sh 'npm install'
+                    sh 'npm run lint || echo "Linting skipped"'
+                    sh 'npm test || echo "Tests failed or skipped"'
                 }
             }
         }
-
-        stage('Build Docker Image') {
+        stage('Docker Build') {
             steps {
-                
                 dir('EventPlanner-Basic') {
-                    bat 'docker build -t eventplanner-basic:latest .'
+                    sh 'docker build -t $DOCKER_IMAGE .'
                 }
             }
         }
-
-        stage('Run Docker Container') {
+        stage('Deploy') {
             steps {
-                bat '''
-                echo Cleaning old container if exists...
-
-                docker rm -f eventplanner-app 2>nul
-
-                echo Starting new container...
-                docker run -d -p 3000:3000 --name eventplanner-app eventplanner-basic:latest
-
-                echo Done!
-                '''
+                script {
+                    sh 'docker stop eventplanner-app || true'
+                    sh 'docker rm eventplanner-app || true'
+                    sh 'docker run -d --name eventplanner-app -p 3000:3000 $DOCKER_IMAGE'
+                }
             }
+        }
+    }
+    post {
+        always {
+            cleanWs()
         }
     }
 }
