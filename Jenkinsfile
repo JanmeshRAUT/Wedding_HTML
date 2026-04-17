@@ -4,6 +4,11 @@ pipeline {
         DOCKER_IMAGE = 'eventplanner-basic:latest'
     }
     stages {
+        stage('Cleanup') {
+            steps {
+                bat 'docker image prune -f || ver > nul'
+            }
+        }
         stage('Docker Build & Internal Test') {
             steps {
                 dir('EventPlanner-Basic') {
@@ -14,10 +19,9 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                script {
-                    bat 'docker stop eventplanner-app || ver > nul'
-                    bat 'docker rm eventplanner-app || ver > nul'
-                    bat 'docker run -d --name eventplanner-app -p 3000:3000 %DOCKER_IMAGE%'
+                dir('EventPlanner-Basic') {
+                    // Use docker-compose to redeploy the app service
+                    bat 'docker-compose up -d --build app'
                 }
             }
         }
