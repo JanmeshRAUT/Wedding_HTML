@@ -1,8 +1,5 @@
 pipeline {
     agent any
-    tools {
-        nodejs 'NodeJS_20' // Ensure this matches your Jenkins global tool config
-    }
     environment {
         DOCKER_IMAGE = 'eventplanner-basic:latest'
     }
@@ -12,32 +9,17 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Install') {
-            steps {
-                dir('EventPlanner-Basic') {
-                    sh 'npm install'
+        stage('Install & Test') {
+            agent {
+                docker {
+                    image 'node:20-alpine'
+                    reuseNode true
                 }
             }
-        }
-        stage('Lint') {
             steps {
-                dir('EventPlanner-Basic') {
-                    sh 'npm run lint || echo "Linting skipped"'
-                }
-            }
-        }
-        stage('Test') {
-            steps {
-                dir('EventPlanner-Basic') {
-                    sh 'npm test || echo "Tests failed or skipped"'
-                }
-            }
-        }
-        stage('Build') {
-            steps {
-                dir('EventPlanner-Basic') {
-                    sh 'npm run build || echo "No build script"'
-                }
+                sh 'npm install'
+                sh 'npm run lint || echo "Linting skipped"'
+                sh 'npm test || echo "Tests failed or skipped"'
             }
         }
         stage('Docker Build') {
@@ -49,7 +31,12 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                echo 'Deploy stage - add deployment steps here.'
+                script {
+                    // Example: Run the container if not already running
+                    sh 'docker stop eventplanner-app || true'
+                    sh 'docker rm eventplanner-app || true'
+                    sh 'docker run -d --name eventplanner-app -p 3000:3000 $DOCKER_IMAGE'
+                }
             }
         }
     }
