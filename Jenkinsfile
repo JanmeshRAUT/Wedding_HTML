@@ -6,6 +6,7 @@ pipeline {
     stages {
         stage('Cleanup') {
             steps {
+                bat 'docker rm -f eventplanner-app || ver > nul'
                 bat 'docker image prune -f || ver > nul'
             }
         }
