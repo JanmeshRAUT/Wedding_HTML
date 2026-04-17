@@ -24,6 +24,7 @@ pipeline {
     }
     post {
         always {
+            bat 'docker image prune -f || ver > nul'
             cleanWs()
         }
     }
