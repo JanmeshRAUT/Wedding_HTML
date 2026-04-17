@@ -109,10 +109,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "rate(http_request_duration_seconds_count[1m])",
           "format": "time_series",
@@ -196,10 +193,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "rate(http_request_duration_seconds_sum[1m]) / rate(http_request_duration_seconds_count[1m])",
           "format": "time_series",
@@ -296,10 +290,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "sum(rate(container_cpu_usage_seconds_total{name!=\"\"}[1m])) by (name) * 100",
           "format": "time_series",
@@ -383,10 +374,7 @@
       },
       "targets": [
         {
-          "datasource": {
-            "type": "prometheus",
-            "uid": "Prometheus"
-          },
+          "datasource": null,
           "editorMode": "code",
           "expr": "container_memory_usage_bytes{name!=\"\"}",
           "format": "time_series",
