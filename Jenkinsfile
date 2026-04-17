@@ -4,40 +4,32 @@ pipeline {
         DOCKER_IMAGE = 'eventplanner-basic:latest'
     }
     stages {
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-        stage('Install & Test') {
-            agent {
-                docker {
-                    image 'node:20-alpine'
-                    reuseNode true
-                }
-            }
+        stage('Install Dependencies') {
             steps {
                 dir('EventPlanner-Basic') {
-                    sh 'npm install'
-                    sh 'npm run lint || echo "Linting skipped"'
-                    sh 'npm test || echo "Tests failed or skipped"'
+                    bat 'npm install'
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                dir('EventPlanner-Basic') {
+                    bat 'npm test || echo "Tests failed or skipped"'
                 }
             }
         }
         stage('Docker Build') {
             steps {
                 dir('EventPlanner-Basic') {
-                    sh 'docker build -t $DOCKER_IMAGE .'
+                    bat 'docker build -t %DOCKER_IMAGE% .'
                 }
             }
         }
         stage('Deploy') {
             steps {
-                script {
-                    sh 'docker stop eventplanner-app || true'
-                    sh 'docker rm eventplanner-app || true'
-                    sh 'docker run -d --name eventplanner-app -p 3000:3000 $DOCKER_IMAGE'
-                }
+                bat 'docker stop eventplanner-app || ver > nul'
+                bat 'docker rm eventplanner-app || ver > nul'
+                bat 'docker run -d --name eventplanner-app -p 3000:3000 %DOCKER_IMAGE%'
             }
         }
     }
